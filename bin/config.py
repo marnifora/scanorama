@@ -33,7 +33,7 @@ with open(args.file, 'r') as file:
             for f in fields:
                 if f.strip() == '':
                     continue
-                dn = (path + '/' + l[1]).replace('///', '/').replace('//', '/')
+                dn = (path + '/' + f).replace('///', '/').replace('//', '/')
                 data_names.append(dn)
     if not names and data_names:
         names = [el.strip().split('/')[-1].split('.')[0] for el in data_names]
