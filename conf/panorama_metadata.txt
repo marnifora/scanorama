@@ -1,0 +1,26 @@
+jurkat	jurkat cells
+293t	293T cells
+jurkat_293t_50_50	50:50 jurkat and 293T cells
+jurkat_293t_99_1	99:1 jurkat and 293T cells
+neuron_9k	mouse neurons
+infected	macrophages Mtb infected
+mixed_infected	macrophages Mtb exposed
+uninfected	macrophages uninfected
+uninfected_donor2	macrophages uninfected
+hsc_mars	mouse hematopoietic stem cells
+hsc_ss2	mouse hematopoietic stem cells
+pancreas_inDrop	pancreatic islet
+pancreas_multi_celseq2_expression_matrix	pancreatic islet
+pancreas_multi_celseq_expression_matrix	pancreatic islet
+pancreas_multi_fluidigmc1_expression_matrix	pancreatic islet
+pancreas_multi_smartseq2_expression_matrix	pancreatic islet
+68k_pbmc	peripheral blood mononuclear cells
+b_cells	CD19+ B cells
+cd14_monocytes	CD14+ monocytes
+cd4_t_helper	CD4+ helper T cells
+cd56_nk	CD56+ natural killer cells
+cytotoxic_t	CD8+ cytotoxic T cells
+memory_t	CD4+/CD45RO+ memory T cells
+regulatory_t	CD4+/CD25+ regulatory T cells
+pbmc_kang	peripheral blood mononuclear cells
+pbmc_10X	peripheral blood mononuclear cells
