@@ -60,7 +60,7 @@ def load_mtx(dname):
     assert(len(genes) == n_genes)
 
     with open(dname + '/barcodes.tsv', 'r') as f:
-        cells = f.readlines().split('\n')
+        cells = f.read().split('\n')
 
     return X, cells, np.array(genes)
 
