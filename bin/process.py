@@ -59,7 +59,10 @@ def load_mtx(dname):
             genes.append(fields[1])
     assert(len(genes) == n_genes)
 
-    return X, np.array(genes)
+    with open(dname + '/barcodes.tsv', 'r') as f:
+        cells = f.readlines().split('\n')
+
+    return X, cells, np.array(genes)
 
 def load_h5(fname, genome='mm10'):
     try:
@@ -117,12 +120,12 @@ def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
         exit(1)
         
     cache_fname = cache_prefix + '.npz'
-    np.savez(cache_fname, X=X, genes=genes)
+    np.savez(cache_fname, X=X, genes=genes, cells=cells)
 
     return X, cells, genes
 
 def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
-    X, genes = load_mtx(dname)
+    X, cells, genes = load_mtx(dname)
 
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
                if s >= min_trans ]
@@ -136,7 +139,7 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
     with open(dname + '/tab.genes.txt', 'w') as of:
         of.write('\n'.join(genes) + '\n')
 
-    return X, genes
+    return X, cells, genes
 
 def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     X, genes = load_h5(fname)
@@ -163,28 +166,33 @@ def load_data(name):
         X = scipy.sparse.load_npz(name + '.h5.npz')
         with open(name + '.h5.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
+        cells = None
     elif os.path.isfile(name + '.npz'):
         data = np.load(name + '.npz')
         X = data['X']
         genes = data['genes']
+        cells = data['cells']
         data.close()
     elif os.path.isfile(name + '/tab.npz'):
         X = scipy.sparse.load_npz(name + '/tab.npz')
         with open(name + '/tab.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
+        with open(name + '/barcodes.tsv', 'r') as f:
+            cells = np.array(f.read().split('\n'))
     else:
         sys.stderr.write('Could not find: {}\n'.format(name))
         exit(1)
     genes = np.array([ gene.upper() for gene in genes ])
-    return X, genes
+    return X, cells, genes
 
 def load_names(data_names, norm=True, log1p=False, verbose=True):
     # Load datasets.
     datasets = []
     genes_list = []
+    cells_list = []
     n_cells = 0
     for name in data_names:
-        X_i, genes_i = load_data(name)
+        X_i, cells_i, genes_i = load_data(name)
         if norm:
             X_i = normalize(X_i, axis=1)
         if log1p:
@@ -193,6 +201,7 @@ def load_names(data_names, norm=True, log1p=False, verbose=True):
             
         datasets.append(X_i)
         genes_list.append(genes_i)
+        cells_list.append(cells_i)
         n_cells += X_i.shape[0]
         if verbose:
             print('Loaded {} with {} genes and {} cells'.
@@ -201,7 +210,7 @@ def load_names(data_names, norm=True, log1p=False, verbose=True):
         print('Found {} cells among all datasets'
               .format(n_cells))
 
-    return datasets, genes_list, n_cells
+    return datasets, genes_list, cells_list, n_cells
 
 def save_datasets(datasets, genes, data_names, verbose=True,
                   truncate_neg=False):

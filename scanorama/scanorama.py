@@ -93,8 +93,8 @@ def correct(datasets_full, genes_list, return_dimred=False,
 
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
-    datasets_dimred, genes = process_data(datasets, genes, hvg=hvg,
-                                          dimred=dimred)
+    datasets_dimred, datasets_norm, genes = process_data(datasets, genes, hvg=hvg,
+                                                         dimred=dimred)
 
     datasets_dimred = assemble(
         datasets_dimred, # Assemble in low dimensional space.
@@ -108,7 +108,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
         datasets = [ ds.toarray() for ds in datasets ]
 
     if return_dimred:
-        return datasets_dimred, datasets, genes
+        return datasets_dimred, datasets_norm, datasets, genes
 
     return datasets, genes
 
@@ -391,7 +391,7 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
         datasets_dimred = dimensionality_reduce(datasets, dimred=dimred)
         if verbose:
             print('Done processing.')
-        return datasets_dimred, genes
+        return datasets_dimred, datasets, genes
 
     if verbose:
         print('Done processing.')
@@ -399,7 +399,7 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     return datasets, genes
 
 # Plot t-SNE visualization.
-def visualize(assembled, labels, namespace, data_names,
+def visualize(assembled, labels, namespace, names,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
@@ -442,13 +442,13 @@ def visualize(assembled, labels, namespace, data_names,
                'knn: {}, hvg: {}, dimred: {}, approx: {})')
               .format(n_iter, perplexity, SIGMA, KNN, HVG,
                       DIMRED, APPROX))
-    plt.savefig(namespace + image_suffix, dpi=500)
+    plt.savefig(namespace + '_all' + image_suffix, dpi=500)
 
     # Plot clusters individually.
     if viz_cluster and not shuffle_ds:
-        for i in range(len(data_names)):
+        for i in range(len(names)):
             visualize_cluster(embedding, i, labels,
-                              cluster_name=data_names[i], size=size,
+                              cluster_name=names[i], size=size,
                               viz_prefix=namespace,
                               image_suffix=image_suffix)
 
@@ -465,6 +465,22 @@ def visualize(assembled, labels, namespace, data_names,
                            image_suffix=image_suffix)
 
     return embedding
+
+
+def metadata_into_file(embeddings, labels, names, output, cells_list, namespace, metadata):
+    out = open(output + namespace + '_metadata.tsv', 'w')
+    out.write('%s\t%s\t%s\t%s\n' % ('cell_name', 'dataset', 'tSNE-x', 'tSNE-y'))
+    done = {name: 0 for name in names}
+    for label, embedding in zip(labels, embeddings):
+        name = names[label]
+        cell = cells_list[label][done[name]]
+        done[name] += 1
+        try:
+            meta = '\t'.join([el for el in metadata[name]])
+        except TypeError:
+            meta = ''
+        out.write('%s\t%s\t%f\t%f\t%s\n' % (cell, name, embedding[0], embedding[1], meta))
+    out.close()
 
 # Exact nearest neighbors search.
 def nn(ds1, ds2, knn=KNN, metric_p=2):
