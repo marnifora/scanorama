@@ -40,9 +40,9 @@ with open(args.file, 'r') as file:
     print('Data names loaded')
 
 if args.metadata is not None:
-    metafile = path + args.metadata
+    metafile = args.metadata
 else:
-    metafile = path + '.'.join(args.file.split('.')[:-1]) + '_metadata.txt'
+    metafile = '.'.join(args.file.split('.')[:-1]) + '_metadata.txt'
 if os.path.isfile(metafile):
     with open(metafile, 'r') as f:
         metadata = {}
