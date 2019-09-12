@@ -5,7 +5,7 @@ import sys
 from scipy.io import mmwrite
 from scipy.sparse import vstack
 
-sys.path.insert(1, '../scanorama/')
+sys.path.insert(1, '~/scanorama/scanorama/')
 from scanorama import *
 
 if __name__ == '__main__':
