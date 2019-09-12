@@ -1,15 +1,13 @@
-from process import load_names, merge_datasets
+from bin.process import load_names
 from time import time
 import numpy as np
 import sys
 from scipy.io import mmwrite
 from scipy.sparse import vstack
-
-sys.path.insert(1, '~/scanorama/scanorama/')
-from scanorama import *
+from scanorama.scanorama import *
 
 if __name__ == '__main__':
-    from config import data_names, names, namespace, path, output, metadata
+    from bin.config import data_names, names, namespace, path, output, metadata
 
     datasets, genes_list, cells_list, n_cells = load_names(data_names)
 

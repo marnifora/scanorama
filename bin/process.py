@@ -6,8 +6,6 @@ from scipy.sparse import csr_matrix
 from sklearn.preprocessing import normalize
 import sys
 
-from scanorama import merge_datasets
-
 MIN_TRANSCRIPTS = 600
 
 def load_tab(fname, max_genes=40000):
