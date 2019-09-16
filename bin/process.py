@@ -28,7 +28,7 @@ def load_tab(fname, max_genes=40000):
                 break
             if fname.endswith('.gz'):
                 line = line.decode('utf-8')
-            fields = line.rstrip().split('\t')
+            fields = line.strip().split('\t')
             genes.append(fields[0])
             X[:, i] = [ float(f) for f in fields[1:] ]
     return X[:, range(len(genes))], np.array(cells), np.array(genes)
@@ -60,7 +60,7 @@ def load_mtx(dname):
     with open(dname + '/barcodes.tsv', 'r') as f:
         cells = f.read().split('\n')
 
-    return X, cells, np.array(genes)
+    return X, np.array(cells), np.array(genes)
 
 def load_h5(fname, genome='mm10'):
     try:
@@ -128,6 +128,7 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
     gt_idx = [ i for i, s in enumerate(np.sum(X != 0, axis=1))
                if s >= min_trans ]
     X = X[gt_idx, :]
+    cells = cells[gt_idx]
     if len(gt_idx) == 0:
         print('Warning: 0 cells passed QC in {}'.format(dname))
     
@@ -136,6 +137,9 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
 
     with open(dname + '/tab.genes.txt', 'w') as of:
         of.write('\n'.join(genes) + '\n')
+
+    with open(dname + '/tab.cells.txt', 'w') as of:
+        of.write('\n'.join(cells) + '\n')
 
     return X, cells, genes
 
@@ -175,8 +179,8 @@ def load_data(name):
         X = scipy.sparse.load_npz(name + '/tab.npz')
         with open(name + '/tab.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
-        with open(name + '/barcodes.tsv', 'r') as f:
-            cells = np.array(f.read().split('\n'))
+        with open(name + '/tab.cells.txt', 'r') as f:
+            cells = np.array(f.read().rstrip().split())
     else:
         sys.stderr.write('Could not find: {}\n'.format(name))
         exit(1)
