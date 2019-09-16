@@ -20,7 +20,7 @@ def load_tab(fname, max_genes=40000):
         else:
             header = f.readline().rstrip().split('\t')
             
-        cells = header[1:]
+        cells = [c.strip() for c in header[1:] if c]
         X = np.zeros((len(cells), max_genes))
         genes = []
         for i, line in enumerate(f):
