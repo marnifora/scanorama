@@ -477,7 +477,7 @@ def metadata_into_file(embeddings, labels, names, output, cells_list, namespace,
         done[name] += 1
         try:
             meta = '\t'.join([el for el in metadata[name]])
-        except TypeError:
+        except KeyError:
             meta = ''
         out.write('%s\t%s\t%f\t%f\t%s\n' % (cell, name, embedding[0], embedding[1], meta))
     out.close()

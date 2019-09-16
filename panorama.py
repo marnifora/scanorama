@@ -22,6 +22,10 @@ if __name__ == '__main__':
 
     mmwrite(output + '%s_datasets_norm.mtx' % namespace, vstack(datasets_norm))
     mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
+    with open(output + '%s_genes_list.txt' % namespace, 'w') as o:
+        o.write('\n'.join(genes))
+    with open(output + '%s_cells_list.txt' % namespace, 'w') as o:
+        o.write('\n'.join([ll for l in cells_list for ll in l]))
 
     labels = []
     curr_label = 0
@@ -36,19 +40,20 @@ if __name__ == '__main__':
 
     metadata_into_file(embedding, labels, names, output, cells_list, namespace, metadata)
 
-    # Uncorrected.
-    datasets, genes_list, cells_list, n_cells = load_names(data_names)
-    datasets, genes = merge_datasets(datasets, genes_list)
-    datasets_dimred = dimensionality_reduce(datasets)
-    
-    labels = []
-    names = []
-    curr_label = 0
-    for i, a in enumerate(datasets):
-        labels += list(np.zeros(a.shape[0]) + curr_label)
-        names.append(data_names[i])
-        curr_label += 1
-    labels = np.array(labels, dtype=int)
+    if '--uncorrected' in sys.argv:
+        # Uncorrected.
+        datasets, genes_list, cells_list, n_cells = load_names(data_names)
+        datasets, genes = merge_datasets(datasets, genes_list)
+        datasets_dimred = dimensionality_reduce(datasets)
 
-    embedding = visualize(datasets_dimred, labels,
-                          path + namespace + '_uncorrected', names)
+        labels = []
+        names = []
+        curr_label = 0
+        for i, a in enumerate(datasets):
+            labels += list(np.zeros(a.shape[0]) + curr_label)
+            names.append(data_names[i])
+            curr_label += 1
+        labels = np.array(labels, dtype=int)
+
+        embedding = visualize(datasets_dimred, labels,
+                              path + namespace + '_uncorrected', names)

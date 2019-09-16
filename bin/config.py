@@ -47,7 +47,7 @@ if os.path.isfile(metafile):
     with open(metafile, 'r') as f:
         metadata = {}
         for line in f:
-            line = line.split('\t')
+            line = line.strip().split('\t')
             if line[0] in names:
                 metadata[line[0]] = line[1:]
 else:
