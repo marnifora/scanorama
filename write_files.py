@@ -9,7 +9,7 @@ print('number of cells: %d' % len(cells))
 
 w.write(o.readline())
 for cell, meta in zip(cells, o):
-    w.write('%s\t%s\n' % (cell, meta.strip()))
+    w.write('%s\t%s\n' % (cell, '\t'.join(meta.strip().split()[1:])))
 o.close()
 w.close()
 
