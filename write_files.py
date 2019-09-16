@@ -1,14 +1,15 @@
-from bin.config import data_names, names, namespace, output
-from scanorama.scanorama import check_datasets, merge_datasets
-from bin.process import load_names
+from bin.config import namespace, output
 
-datasets, genes_list, cells_list, n_cells = load_names(data_names)
-datasets_full = check_datasets(datasets)
-datasets, genes = merge_datasets(datasets_full, genes_list,
-                                 ds_names=names, union=False)
+embeddings = []
+o = open(output + namespace + '_metadata.tsv', 'r')
+w = open(output + namespace + '_truemeta.tsv', 'w')
+with open(output + namespace + '_cells_list.txt', 'r') as oo:
+    cells = oo.read().strip().split()
+print('number of cells: %d' % len(cells))
 
-with open(output + '%s_genes_list.txt' % namespace, 'w') as o:
-    o.write('\n'.join(genes))
-with open(output + '%s_cells_list.txt' % namespace, 'w') as o:
-    o.write('\n'.join([ll for l in cells_list for ll in l]))
+w.write(o.readline())
+for cell, meta in zip(cells, o):
+    w.write('%s\t%s\n' % (cell, meta.strip()))
+o.close()
+w.close()
 

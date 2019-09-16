@@ -481,6 +481,9 @@ def metadata_into_file(embeddings, labels, names, output, cells_list, namespace,
             meta = ''
         out.write('%s\t%s\t%f\t%f\t%s\n' % (cell, name, embedding[0], embedding[1], meta))
     out.close()
+    for label in labels:
+        name = names[label]
+        assert len(cells_list[label]) == done[name]
 
 # Exact nearest neighbors search.
 def nn(ds1, ds2, knn=KNN, metric_p=2):
