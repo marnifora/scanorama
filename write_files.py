@@ -1,15 +1,8 @@
-from bin.config import namespace, output
+from bin.config import namespace, output, data_names
+from bin.process import load_names
+from scipy.io import mmwrite
+from scipy.sparse import vstack
 
-embeddings = []
-o = open(output + namespace + '_metadata.tsv', 'r')
-w = open(output + namespace + '_truemeta.tsv', 'w')
-with open(output + namespace + '_cells_list.txt', 'r') as oo:
-    cells = oo.read().strip().split()
-print('number of cells: %d' % len(cells))
+datasets, _, _, _ = load_names(data_names, norm=False)
 
-w.write(o.readline())
-for cell, meta in zip(cells, o):
-    w.write('%s\t%s\n' % (cell, '\t'.join(meta.strip().split('\t')[1:])))
-o.close()
-w.close()
-
+mmwrite(output + '%s_datasets.mtx' % namespace, vstack(datasets))

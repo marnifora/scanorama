@@ -9,7 +9,9 @@ from scanorama.scanorama import *
 if __name__ == '__main__':
     from bin.config import data_names, names, namespace, path, output, metadata
 
-    datasets, genes_list, cells_list, n_cells = load_names(data_names)
+    datasets, genes_list, cells_list, n_cells = load_names(data_names, norm=False)
+
+    mmwrite(output + '%s_datasets.mtx' % namespace, vstack(datasets))
 
     t0 = time()
     datasets_dimred, datasets_norm, datasets, genes = correct(
@@ -20,6 +22,7 @@ if __name__ == '__main__':
         print('Integrated and batch corrected panoramas in {:.3f}s'
               .format(time() - t0))
 
+    v = vstack(datasets_norm)
     mmwrite(output + '%s_datasets_norm.mtx' % namespace, vstack(datasets_norm))
     mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
     with open(output + '%s_genes_list.txt' % namespace, 'w') as o:

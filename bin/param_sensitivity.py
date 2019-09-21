@@ -3,7 +3,7 @@ from scanorama import *
 from scipy.stats import ttest_ind
 from sklearn.metrics import silhouette_samples as sil
 
-from process import load_names, process
+from .process import load_names, process
 
 def test_knn(datasets_dimred, genes, labels, idx, distr, xlabels):
     knns = [ 5, 10, 50, 100 ]
