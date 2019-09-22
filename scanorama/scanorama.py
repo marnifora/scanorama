@@ -31,7 +31,7 @@ SIGMA = 15
 VERBOSE = 2
 
 # Do batch correction on a list of data sets.
-def correct(datasets_full, genes_list, return_dimred=False,
+def correct(datasets_full, genes_list, return_matrices=False,
             batch_size=BATCH_SIZE, verbose=VERBOSE, ds_names=None,
             dimred=DIMRED, approx=APPROX, sigma=SIGMA, alpha=ALPHA, knn=KNN,
             return_dense=False, hvg=None, union=False,
@@ -96,7 +96,7 @@ def correct(datasets_full, genes_list, return_dimred=False,
     datasets_dimred, datasets_norm, genes = process_data(datasets, genes, hvg=hvg,
                                                          dimred=dimred)
 
-    datasets_dimred = assemble(
+    datasets_moved = assemble(
         datasets_dimred, # Assemble in low dimensional space.
         expr_datasets=datasets, # Modified in place.
         verbose=verbose, knn=knn, sigma=sigma, approx=approx,
@@ -107,10 +107,10 @@ def correct(datasets_full, genes_list, return_dimred=False,
     if return_dense:
         datasets = [ ds.toarray() for ds in datasets ]
 
-    if return_dimred:
-        return datasets_dimred, datasets_norm, datasets, genes
+    if return_matrices:
+        return datasets_moved, datasets_dimred, datasets_norm, genes
 
-    return datasets, genes
+    return genes
 
 # Integrate a list of data sets.
 def integrate(datasets_full, genes_list, batch_size=BATCH_SIZE,
@@ -381,8 +381,9 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     # Normalize.
     if verbose:
         print('Normalizing...')
+    datasets_norm = datasets.copy()
     for i, ds in enumerate(datasets):
-        datasets[i] = normalize(ds, axis=1)
+        datasets_norm[i] = normalize(ds, axis=1)
 
     # Compute compressed embedding.
     if dimred > 0:
@@ -391,12 +392,12 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
         datasets_dimred = dimensionality_reduce(datasets, dimred=dimred)
         if verbose:
             print('Done processing.')
-        return datasets_dimred, datasets, genes
+        return datasets_dimred, datasets_norm, genes
 
     if verbose:
         print('Done processing.')
 
-    return datasets, genes
+    return datasets_norm, genes
 
 # Plot t-SNE visualization.
 def visualize(assembled, labels, namespace, names,
@@ -469,7 +470,7 @@ def visualize(assembled, labels, namespace, names,
 
 def metadata_into_file(embeddings, labels, names, output, cells_list, namespace, metadata):
     out = open(output + namespace + '_metadata.tsv', 'w')
-    out.write('%s\t%s\t%s\t%s\n' % ('cell_name', 'dataset', 'tSNE-x', 'tSNE-y'))
+    out.write('%s\t%s\t%s\t%s\t%s\n' % ('Cell ID', 'Cluster', 'tSNE-x', 'tSNE-y', 'Dataset'))
     done = {name: 0 for name in names}
     for label, embedding in zip(labels, embeddings):
         name = names[label]
@@ -787,10 +788,12 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
 # Finds alignments between datasets and uses them to construct
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
-def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
+def assemble(datasets_dimred, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
              ds_names=None, batch_size=None,
              geosketch=False, geosketch_max=20000, alignments=None, matches=None):
+    datasets = datasets_dimred.copy()
+
     if len(datasets) == 1:
         return datasets
 

@@ -13,9 +13,13 @@ parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', ty
                     default='panorama', help='Namespace for the result files')
 parser.add_argument('-m', '--metadata', action='store', metavar='METADATA', type=str, required=False,
                     default=None, help='Optional file with metadata')
+parser.add_argument('-w', '--write', action='store_true')
+parser.add_argument('--tsne', action='store_true')
+parser.add_argument('--uncorrected', action='store_true')
 args = parser.parse_args()
 
-path, output, namespace = args.path, args.output, args.namespace
+path, output, namespace, write, tsne, uncorrected = args.path, args.output, args.namespace, args.write, args.tsne, \
+                                                    args.uncorrected
 
 if not os.path.isdir(output):
     os.mkdir(output)
