@@ -11,11 +11,8 @@ if __name__ == '__main__':
 
     datasets, genes_list, cells_list, n_cells = load_names(data_names, norm=False)
 
-    if write:
-        mmwrite(output + '%s_datasets.mtx' % namespace, vstack(datasets))
-
     t0 = time()
-    datasets_moved, datasets_dimred, datasets_norm, genes = correct(
+    datasets_moved, datasets_dimred, datasets_norm, datasets, genes = correct(
         datasets, genes_list, ds_names=names,
         sigma=150, return_matrices=True
     )
@@ -24,6 +21,7 @@ if __name__ == '__main__':
               .format(time() - t0))
 
     if write:
+        mmwrite(output + '%s_datasets.mtx' % namespace, vstack(datasets), field='integer')
         mmwrite(output + '%s_datasets_norm.mtx' % namespace, vstack(datasets_norm))
         mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
         mmwrite(output + '%s_datasets_moved.mtx' % namespace, vstack(datasets_moved))

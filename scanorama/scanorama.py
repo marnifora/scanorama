@@ -93,12 +93,12 @@ def correct(datasets_full, genes_list, return_matrices=False,
 
     datasets, genes = merge_datasets(datasets_full, genes_list,
                                      ds_names=ds_names, union=union)
-    datasets_dimred, datasets_norm, genes = process_data(datasets, genes, hvg=hvg,
+    datasets_dimred, datasets_norm, genes = process_data([ds.copy() for ds in datasets], genes, hvg=hvg,
                                                          dimred=dimred)
 
     datasets_moved = assemble(
-        datasets_dimred, # Assemble in low dimensional space.
-        expr_datasets=datasets, # Modified in place.
+        [ds.copy() for ds in datasets_dimred], # Assemble in low dimensional space.
+        expr_datasets=[ds.copy() for ds in datasets], # Modified in place.
         verbose=verbose, knn=knn, sigma=sigma, approx=approx,
         alpha=alpha, ds_names=ds_names, batch_size=batch_size,
         geosketch=geosketch, geosketch_max=geosketch_max,
@@ -108,7 +108,7 @@ def correct(datasets_full, genes_list, return_matrices=False,
         datasets = [ ds.toarray() for ds in datasets ]
 
     if return_matrices:
-        return datasets_moved, datasets_dimred, datasets_norm, genes
+        return datasets_moved, datasets_dimred, datasets_norm, datasets, genes
 
     return genes
 
@@ -788,11 +788,10 @@ def transform(curr_ds, curr_ref, ds_ind, ref_ind, sigma=SIGMA, cn=False,
 # Finds alignments between datasets and uses them to construct
 # panoramas. "Merges" datasets by correcting gene expression
 # values.
-def assemble(datasets_dimred, verbose=VERBOSE, view_match=False, knn=KNN,
+def assemble(datasets, verbose=VERBOSE, view_match=False, knn=KNN,
              sigma=SIGMA, approx=APPROX, alpha=ALPHA, expr_datasets=None,
              ds_names=None, batch_size=None,
              geosketch=False, geosketch_max=20000, alignments=None, matches=None):
-    datasets = datasets_dimred.copy()
 
     if len(datasets) == 1:
         return datasets
