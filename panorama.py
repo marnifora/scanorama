@@ -21,7 +21,7 @@ if __name__ == '__main__':
               .format(time() - t0))
 
     if write:
-        mmwrite(output + '%s_datasets.mtx' % namespace, vstack(datasets), field='integer')
+        mmwrite(output + '%s_datasets_counts.mtx' % namespace, vstack(datasets), field='integer')
         mmwrite(output + '%s_datasets_norm.mtx' % namespace, vstack(datasets_norm))
         mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
         mmwrite(output + '%s_datasets_moved.mtx' % namespace, vstack(datasets_moved))
@@ -29,8 +29,9 @@ if __name__ == '__main__':
         with open(output + '%s_genes_list.txt' % namespace, 'w') as o:
             o.write('\n'.join(genes))
         with open(output + '%s_cells_list.txt' % namespace, 'w') as o:
-            o.write('\n'.join([ll for l in cells_list for ll in l]))
-
+            for cells, name in zip(cells_list, names):
+                for cell in cells:
+                    o.write('%s:%s\n' % (cell, name))
     if tsne:
         labels = []
         curr_label = 0
@@ -39,7 +40,7 @@ if __name__ == '__main__':
             curr_label += 1
         labels = np.array(labels, dtype=int)
 
-        embedding = visualize(datasets_dimred,
+        embedding = visualize(datasets_moved,
                               labels, path + namespace, names,
                               multicore_tsne=False, viz_cluster=True)
 

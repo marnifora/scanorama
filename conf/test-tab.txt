@@ -1,3 +1,2 @@
 hsc/hsc_mars
-hsc/hsc_ss2
-pancreas/pancreas_inDrop
+pancreas/pancreas_multi_celseq_expression_matrix

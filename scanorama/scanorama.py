@@ -428,7 +428,10 @@ def visualize(assembled, labels, namespace, names,
                 early_exaggeration=early_exag
             )
 
-        tsne.fit(np.concatenate(assembled))
+        try:
+            tsne.fit(np.concatenate(assembled))
+        except:
+            tsne.fit(assembled)
         embedding = tsne.embedding_
 
     if shuffle_ds:
