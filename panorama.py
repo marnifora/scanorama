@@ -5,6 +5,7 @@ import sys
 from scipy.io import mmwrite
 from scipy.sparse import vstack
 from scanorama.scanorama import *
+from tsne_embeddings import calculate_tsne
 
 if __name__ == '__main__':
     from bin.config import data_names, names, namespace, path, output, metadata, write, tsne, uncorrected, dimred
@@ -22,7 +23,7 @@ if __name__ == '__main__':
 
     if write:
         mmwrite(output + '%s_datasets_counts.mtx' % namespace, vstack(datasets), field='integer')
-        mmwrite(output + '%s_datasets_norm.mtx' % namespace, vstack(datasets_norm))
+        mmwrite(output + '%s_datasets_lognorm.mtx' % namespace, vstack(datasets_norm))
         mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
         mmwrite(output + '%s_datasets_moved.mtx' % namespace, vstack(datasets_moved))
 
@@ -33,17 +34,7 @@ if __name__ == '__main__':
                 for cell in cells:
                     o.write('%s:%s\n' % (cell, name))
     if tsne:
-        labels = []
-        curr_label = 0
-        for i, a in enumerate(datasets):
-            labels += list(np.zeros(a.shape[0]) + curr_label)
-            curr_label += 1
-        labels = np.array(labels, dtype=int)
-
-        embedding = visualize(datasets_moved,
-                              labels, path + namespace, names,
-                              multicore_tsne=False, viz_cluster=True)
-
+        calculate_tsne(datasets_moved, cells_list, namespace, output)
         # metadata_into_file(embedding, labels, names, output, cells_list, namespace, metadata)
 
     if uncorrected:
