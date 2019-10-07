@@ -20,6 +20,11 @@ if __name__ == '__main__':
         print('Integrated and batch corrected panoramas in {:.3f}s'
               .format(time() - t0))
 
+    if write or tsne:
+        cells = []
+        for c, name in zip(cells_list, names):
+            for cell in c:
+                cells.append('%s:%s' % (cell, name))
     if write:
         mmwrite(output + '%s_datasets_counts.mtx' % namespace, vstack(datasets), field='integer')
         mmwrite(output + '%s_datasets_lognorm.mtx' % namespace, vstack(datasets_norm))
@@ -29,11 +34,9 @@ if __name__ == '__main__':
         with open(output + '%s_genes_list.txt' % namespace, 'w') as o:
             o.write('\n'.join(genes))
         with open(output + '%s_cells_list.txt' % namespace, 'w') as o:
-            for cells, name in zip(cells_list, names):
-                for cell in cells:
-                    o.write('%s:%s\n' % (cell, name))
+                    o.write('\n'.join(cells))
     if tsne:
-        calculate_tsne(datasets_moved, cells_list, namespace, output)
+        calculate_tsne(datasets_moved, cells, namespace, output)
         # metadata_into_file(embedding, labels, names, output, cells_list, namespace, metadata)
 
     if uncorrected:
