@@ -7,14 +7,14 @@ from scipy.sparse import vstack
 from scanorama.scanorama import *
 
 if __name__ == '__main__':
-    from bin.config import data_names, names, namespace, path, output, metadata, write, tsne, uncorrected
+    from bin.config import data_names, names, namespace, path, output, metadata, write, tsne, uncorrected, dimred
 
     datasets, genes_list, cells_list, n_cells = load_names(data_names, norm=False)
 
     t0 = time()
     datasets_moved, datasets_dimred, datasets_norm, datasets, genes = correct(
         datasets, genes_list, ds_names=names,
-        sigma=150, return_matrices=True
+        sigma=150, return_matrices=True, dimred=dimred
     )
     if VERBOSE:
         print('Integrated and batch corrected panoramas in {:.3f}s'
