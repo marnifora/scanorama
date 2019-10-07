@@ -1,2 +1,6 @@
 hsc/hsc_mars
+hsc/hsc_ss2
+pancreas/pancreas_multi_celseq2_expression_matrix
 pancreas/pancreas_multi_celseq_expression_matrix
+pancreas/pancreas_multi_fluidigmc1_expression_matrix
+pancreas/pancreas_multi_smartseq2_expression_matrix

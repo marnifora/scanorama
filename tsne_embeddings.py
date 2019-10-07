@@ -11,6 +11,8 @@ parser.add_argument('cells', action='store', metavar='FILE', type=str,
                     help='Names of cells')
 parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, required=False,
                     default='./results/', help='Directory for the results')
+parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', type=str, required=False,
+                    default=None, help='Namespace for the analysis')
 args = parser.parse_args()
 
 output = args.output
@@ -20,7 +22,9 @@ if not os.path.isdir(output):
 matrix = mmread(args.matrix)
 cells = open(args.cells, 'r').read().strip().split('\n')
 
-namespace = args.matrix.split('/')[-1].split('_')[0]
+namespace = args.namespace
+if namespace is None:
+    namespace = args.matrix.split('/')[-1].split('_')[0]
 outfile = namespace + '_tsne.txt'
 o = open(output + outfile, 'w')
 o.write('Cell ID\ttSNE-x\ttSNE-y\n')

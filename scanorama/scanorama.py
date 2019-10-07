@@ -98,7 +98,6 @@ def correct(datasets_full, genes_list, return_matrices=False,
 
     datasets_moved = assemble(
         [ds.copy() for ds in datasets_dimred], # Assemble in low dimensional space.
-        expr_datasets=[ds.copy() for ds in datasets], # Modified in place.
         verbose=verbose, knn=knn, sigma=sigma, approx=approx,
         alpha=alpha, ds_names=ds_names, batch_size=batch_size,
         geosketch=geosketch, geosketch_max=geosketch_max,
