@@ -1,5 +1,4 @@
-import numpy as np
-from scanorama.scanorama import visualize
+from scanorama.scanorama import calculate_tsne
 import argparse
 import os
 from scipy.io import mmread
@@ -14,31 +13,6 @@ parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, r
 parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', type=str, required=False,
                     default=None, help='Namespace for the analysis')
 args = parser.parse_args()
-
-
-def calculate_tsne(matrix, cells, namespace, output):
-    outfile = namespace + '_tsne.txt'
-    o = open(output + outfile, 'w')
-    o.write('Cell ID\ttSNE-x\ttSNE-y\n')
-
-    labels = []
-    datasets = {}
-    last = 0
-    for cell in cells:
-        d = cell.strip().split(':')[-1]
-        if d not in datasets:
-            datasets[d] = last + 1
-            last += 1
-        labels.append(datasets[d])
-    labels = np.array(labels, dtype=int)
-
-    embedding = visualize(matrix.toarray(), labels, output + namespace, list(datasets.keys()),
-                          multicore_tsne=False, viz_cluster=True)
-
-    for cell, (x, y) in zip(cells, embedding):
-        o.write('%s\t%.5f\t%.5f\n' % (cell, x, y))
-    o.close()
-
 
 output = args.output
 if not os.path.isdir(output):

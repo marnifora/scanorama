@@ -5,7 +5,6 @@ import sys
 from scipy.io import mmwrite
 from scipy.sparse import vstack
 from scanorama.scanorama import *
-from tsne_embeddings import calculate_tsne
 
 if __name__ == '__main__':
     from bin.config import data_names, names, namespace, path, output, metadata, write, tsne, uncorrected, dimred
