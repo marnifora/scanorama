@@ -36,7 +36,7 @@ if __name__ == '__main__':
         with open(output + '%s_cells_list.txt' % namespace, 'w') as o:
                     o.write('\n'.join(cells))
     if tsne:
-        calculate_tsne(datasets_moved, cells, namespace, output)
+        calculate_tsne(vstack(datasets_moved), cells, namespace, output)
         # metadata_into_file(embedding, labels, names, output, cells_list, namespace, metadata)
 
     if uncorrected:

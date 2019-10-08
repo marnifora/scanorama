@@ -408,7 +408,7 @@ def calculate_tsne(matrix, cells, namespace, output):
     datasets = {}
     last = 0
     for cell in cells:
-        d = cell.strip().split(':')[-1]
+        d = cell.split(':')[-1]
         if d not in datasets:
             datasets[d] = last + 1
             last += 1
