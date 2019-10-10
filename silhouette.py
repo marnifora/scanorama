@@ -26,6 +26,7 @@ if __name__ == '__main__':
     sil_non = sil(X[idx, :], labels[idx])
     print(np.median(sil_non))
 
+    '''
     # scran MNN.
     X = np.loadtxt(path + 'corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
@@ -35,6 +36,7 @@ if __name__ == '__main__':
     X = np.loadtxt(path + 'corrected_seurat.txt')
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
+    '''
 
     # Scanorama.
     X = np.concatenate(assemble(datasets_dimred, sigma=150))
@@ -42,13 +44,13 @@ if __name__ == '__main__':
     print(np.median(sil_pan))
 
     print(ttest_ind(sil_pan, sil_non))
-    print(ttest_ind(sil_pan, sil_cca))
-    print(ttest_ind(sil_pan, sil_mnn))
+    # print(ttest_ind(sil_pan, sil_cca))
+    # print(ttest_ind(sil_pan, sil_mnn))
     
     plt.figure()
-    plt.boxplot([ sil_non, sil_mnn, sil_cca, sil_pan ], showmeans=True, whis='range')
+    plt.boxplot([ sil_non, sil_pan ], showmeans=True, whis='range')
     plt.ylim([ -1, 1 ])
     plt.title('Distributions of Silhouette Coefficients')
-    plt.xticks(range(1, 5), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
+    plt.xticks(range(1, 3), [ 'No correction', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
     plt.savefig(output + '{}_silhouette.svg'.format(namespace))
