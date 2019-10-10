@@ -187,7 +187,7 @@ def load_data(name):
     genes = np.array([ gene.upper() for gene in genes ])
     return X, cells, genes
 
-def load_names(data_names, norm=True, log1p=False, log2=True, verbose=True):
+def load_names(data_names, norm=True, log1p=True, verbose=True):
     # Load datasets.
     datasets = []
     genes_list = []
@@ -199,8 +199,6 @@ def load_names(data_names, norm=True, log1p=False, log2=True, verbose=True):
             X_i = normalize(X_i, axis=1)
         if log1p:
             X_i = np.log1p(X_i)
-        if norm and log2:
-            X_i = np.log2([x+1 for x in X_i])
         X_i = csr_matrix(X_i)
             
         datasets.append(X_i)
