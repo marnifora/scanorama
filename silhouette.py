@@ -15,7 +15,7 @@ if __name__ == '__main__':
     idx = range(labels.shape[0])
     #idx = np.random.choice(len(labels), size=int(len(labels)/2), replace=False)
     
-    datasets, genes_list, n_cells = load_names(data_names)
+    datasets, genes_list, cells_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
