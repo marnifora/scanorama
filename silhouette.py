@@ -17,7 +17,7 @@ if __name__ == '__main__':
     
     datasets, genes_list, cells_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
-    datasets_dimred, genes = process_data(datasets, genes)
+    datasets_dimred, datasets_norm, genes = process_data(datasets, genes)
 
     mmwrite(output + 'panorama_silh_matrix.mtx', vstack(datasets_dimred))
 
