@@ -19,7 +19,7 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, datasets_norm, genes = process_data(datasets, genes)
 
-    mmwrite(output + 'panorama_silh_matrix.mtx', vstack(datasets_dimred))
+    mmwrite(output + 'panorama_nocorrection_silh.mtx', vstack(datasets_dimred))
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
@@ -42,6 +42,8 @@ if __name__ == '__main__':
     X = np.concatenate(assemble(datasets_dimred, sigma=150))
     sil_pan = sil(X[idx, :], labels[idx])
     print(np.median(sil_pan))
+
+    mmwrite(output + 'panorama_adjusted_silh.mtx', vstack(X))
 
     print(ttest_ind(sil_pan, sil_non))
     # print(ttest_ind(sil_pan, sil_cca))
