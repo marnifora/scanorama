@@ -11,7 +11,7 @@ if __name__ == '__main__':
         data_names = f.read().rstrip().split()
 
     labels = np.array(
-        open('data/cell_labels/all.txt').read().rstrip().split()
+        open('~/data/cell_labels/all.txt').read().rstrip().split()
     )
     idx = range(labels.shape[0])
     #idx = np.random.choice(len(labels), size=int(len(labels)/2), replace=False)
@@ -28,12 +28,12 @@ if __name__ == '__main__':
     print(np.median(sil_non))
 
     # scran MNN.
-    X = np.loadtxt('data/corrected_mnn.txt')
+    X = np.loadtxt('~/data/corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
     print(np.median(sil_mnn))
 
     # Seurat CCA.
-    X = np.loadtxt('data/corrected_seurat.txt')
+    X = np.loadtxt('~/data/corrected_seurat.txt')
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
 
