@@ -1,10 +1,10 @@
 import numpy as np
-from scanorama import *
+from scanorama.scanoarama import *
 from scipy.stats import ttest_ind
 from sklearn.metrics import silhouette_samples as sil
 from scipy.io import mmwrite
 
-from .process import load_names
+from bin.process import load_names
 
 if __name__ == '__main__':
     with open('conf/panorama.txt') as f:
