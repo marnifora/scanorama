@@ -1,5 +1,5 @@
 import numpy as np
-from scanorama.scanoarama import *
+from scanorama.scanorama import *
 from scipy.stats import ttest_ind
 from sklearn.metrics import silhouette_samples as sil
 from scipy.io import mmwrite
