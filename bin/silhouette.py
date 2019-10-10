@@ -2,8 +2,9 @@ import numpy as np
 from scanorama import *
 from scipy.stats import ttest_ind
 from sklearn.metrics import silhouette_samples as sil
+from scipy.io import mmwrite
 
-from process import load_names
+from .process import load_names
 
 if __name__ == '__main__':
     with open('conf/panorama.txt') as f:
@@ -18,6 +19,8 @@ if __name__ == '__main__':
     datasets, genes_list, n_cells = load_names(data_names)
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
+
+    mmwrite('~/results/panorama_silh_matrix.mtx', vstack(datasets_dimred))
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
@@ -49,4 +52,4 @@ if __name__ == '__main__':
     plt.title('Distributions of Silhouette Coefficients')
     plt.xticks(range(1, 5), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
-    plt.savefig('silhouette.svg')
+    plt.savefig('~/results/silhouette.svg')
