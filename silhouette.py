@@ -7,11 +7,11 @@ from scipy.io import mmwrite
 from bin.process import load_names
 
 if __name__ == '__main__':
-    with open('conf/panorama.txt') as f:
+    with open('./conf/panorama.txt') as f:
         data_names = f.read().rstrip().split()
 
     labels = np.array(
-        open('~/data/cell_labels/all.txt').read().rstrip().split()
+        open('/home/marlena/data/cell_labels/all.txt').read().rstrip().split()
     )
     idx = range(labels.shape[0])
     #idx = np.random.choice(len(labels), size=int(len(labels)/2), replace=False)
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, genes = process_data(datasets, genes)
 
-    mmwrite('~/results/panorama_silh_matrix.mtx', vstack(datasets_dimred))
+    mmwrite('/home/marlena/results/panorama_silh_matrix.mtx', vstack(datasets_dimred))
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
@@ -28,12 +28,12 @@ if __name__ == '__main__':
     print(np.median(sil_non))
 
     # scran MNN.
-    X = np.loadtxt('~/data/corrected_mnn.txt')
+    X = np.loadtxt('/home/marlena/data/corrected_mnn.txt')
     sil_mnn = sil(X[idx, :], labels[idx])
     print(np.median(sil_mnn))
 
     # Seurat CCA.
-    X = np.loadtxt('~/data/corrected_seurat.txt')
+    X = np.loadtxt('/home/marlena/data/corrected_seurat.txt')
     sil_cca = sil(X[idx, :], labels[idx])
     print(np.median(sil_cca))
 
@@ -52,4 +52,4 @@ if __name__ == '__main__':
     plt.title('Distributions of Silhouette Coefficients')
     plt.xticks(range(1, 5), [ 'No correction', 'scran MNN', 'Seurat CCA', 'Scanorama' ])
     plt.ylabel('Silhouette Coefficient')
-    plt.savefig('~/results/silhouette.svg')
+    plt.savefig('/home/marlena/results/silhouette.svg')
