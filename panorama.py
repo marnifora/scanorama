@@ -26,10 +26,10 @@ if __name__ == '__main__':
             for cell in c:
                 cells.append('%s:%s' % (cell, name))
     if write:
-        mmwrite(output + '%s_datasets_counts.mtx' % namespace, vstack(datasets), field='integer')
-        mmwrite(output + '%s_datasets_lognorm.mtx' % namespace, vstack(datasets_norm))
-        mmwrite(output + '%s_datasets_dimred.mtx' % namespace, vstack(datasets_dimred))
-        mmwrite(output + '%s_datasets_moved.mtx' % namespace, vstack(datasets_moved))
+        mmwrite(output + '%s_counts.mtx' % namespace, vstack(datasets), field='integer')
+        mmwrite(output + '%s_lognorm.mtx' % namespace, vstack(datasets_norm))
+        mmwrite(output + '%s_dimred.mtx' % namespace, vstack(datasets_dimred))
+        mmwrite(output + '%s_moved.mtx' % namespace, vstack(datasets_moved))
 
         with open(output + '%s_genes_list.txt' % namespace, 'w') as o:
             o.write('\n'.join(genes))
