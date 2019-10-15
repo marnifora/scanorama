@@ -187,14 +187,20 @@ def load_data(name):
     genes = np.array([ gene.upper() for gene in genes ])
     return X, cells, genes
 
-def load_names(data_names, norm=True, log1p=True, verbose=True):
+def load_names(data_names, norm=False, log1p=False, verbose=True):
     # Load datasets.
     datasets = []
     genes_list = []
     cells_list = []
     n_cells = 0
+    counts = True
     for name in data_names:
         X_i, cells_i, genes_i = load_data(name)
+        for el in np.nditer(X_i):
+            if not float(el).is_integer():
+                print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+                counts = False
+                break
         if norm:
             X_i = normalize(X_i, axis=1)
         if log1p:
@@ -212,7 +218,7 @@ def load_names(data_names, norm=True, log1p=True, verbose=True):
         print('Found {} cells among all datasets'
               .format(n_cells))
 
-    return datasets, genes_list, cells_list, n_cells
+    return datasets, genes_list, cells_list, n_cells, counts
 
 def save_datasets(datasets, genes, data_names, verbose=True,
                   truncate_neg=False):

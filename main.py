@@ -7,15 +7,17 @@ from bin.config import data_names, names, namespace, output, write, tsne, dimred
 t0 = time()
 
 print('Loading matrices from files')
-datasets, genes_list, cells_list, n_cells = load_names(data_names, norm=False)
+datasets, genes_list, cells_list, n_cells, counts = load_names(data_names)
 
 print('Selecting common genes across all datasets')
 datasets, genes = merge_datasets(datasets, genes_list, ds_names=names)
 
-if write:
+if write and counts:
     t1 = time()
     mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
     timew = time() - t1
+elif write and not counts:
+    print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 print('Normalization and dimension reduction')
 datasets_dimred, datasets_norm = process_data(datasets, genes, dimred=dimred)
