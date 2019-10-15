@@ -196,11 +196,21 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     counts = True
     for name in data_names:
         X_i, cells_i, genes_i = load_data(name)
-        for el in X_i.flat:
-            if not el.is_integer():
-                print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
-                counts = False
-                break
+        if scipy.sparse.issparse(X_i):
+            cx = X_i.tocoo()
+            for el in cx.data:
+                if not el.is_integer():
+                    print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+                    counts = False
+                    break
+        elif type(X_i) is np.ndarray:
+            for el in X_i.flat:
+                if not el.is_integer():
+                    print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+                    counts = False
+                    break
+        else:
+            print("WARNING: matrix {} of type {} was not checked whether is a correct matrix of counts".format(name, type(X_i)))
         if norm:
             X_i = normalize(X_i, axis=1)
         if log1p:
