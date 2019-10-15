@@ -196,8 +196,8 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     counts = True
     for name in data_names:
         X_i, cells_i, genes_i = load_data(name)
-        for el in np.nditer(X_i):
-            if not float(el).is_integer():
+        for el in X_i.flatten():
+            if not el.is_integer():
                 print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
                 counts = False
                 break
