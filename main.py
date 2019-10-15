@@ -17,6 +17,7 @@ if write and counts:
     mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
     timew = time() - t1
 elif write and not counts:
+    timew = 0.0
     print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 print('Normalization and dimension reduction')
