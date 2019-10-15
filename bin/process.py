@@ -165,26 +165,23 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     return X, genes
 
 
-def load_data(name, check_counts=True):
+def load_data(name):
     if os.path.isfile(name + '.h5.npz'):
         X = scipy.sparse.load_npz(name + '.h5.npz')
-        if check_counts:
-            counts = check_sparse(X, name)
+        counts = check_sparse(X, name)
         with open(name + '.h5.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
         cells = None
     elif os.path.isfile(name + '.npz'):
         data = np.load(name + '.npz')
         X = data['X']
-        if check_counts:
-            counts = check_ndarray(X, name)
+        counts = check_ndarray(X, name)
         genes = data['genes']
         cells = data['cells']
         data.close()
     elif os.path.isfile(name + '/tab.npz'):
         X = scipy.sparse.load_npz(name + '/tab.npz')
-        if check_counts:
-            counts = check_sparse(X, name)
+        counts = check_sparse(X, name)
         with open(name + '/tab.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
         with open(name + '/tab.cells.txt', 'r') as f:
@@ -193,10 +190,7 @@ def load_data(name, check_counts=True):
         sys.stderr.write('Could not find: {}\n'.format(name))
         exit(1)
     genes = np.array([ gene.upper() for gene in genes ])
-    if check_counts:
-        return X, cells, genes, counts
-    else:
-        return X, cells, genes, True
+    return X, cells, genes, counts
 
 
 def check_sparse(X, name):
@@ -224,7 +218,7 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     n_cells = 0
     counts = True
     for name in data_names:
-        X_i, cells_i, genes_i, c = load_data(name, check_counts=counts)
+        X_i, cells_i, genes_i, c = load_data(name)
         if not c:
             counts = False
         if norm:
