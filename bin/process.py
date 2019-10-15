@@ -143,6 +143,7 @@ def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
 
     return X, cells, genes
 
+
 def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     X, genes = load_h5(fname)
 
@@ -163,20 +164,27 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
 
     return X, genes
 
-def load_data(name):
+
+def load_data(name, check_counts=True):
     if os.path.isfile(name + '.h5.npz'):
         X = scipy.sparse.load_npz(name + '.h5.npz')
+        if check_counts:
+            counts = check_sparse(X, name)
         with open(name + '.h5.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
         cells = None
     elif os.path.isfile(name + '.npz'):
         data = np.load(name + '.npz')
         X = data['X']
+        if check_counts:
+            counts = check_ndarray(X, name)
         genes = data['genes']
         cells = data['cells']
         data.close()
     elif os.path.isfile(name + '/tab.npz'):
         X = scipy.sparse.load_npz(name + '/tab.npz')
+        if check_counts:
+            counts = check_sparse(X, name)
         with open(name + '/tab.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
         with open(name + '/tab.cells.txt', 'r') as f:
@@ -185,7 +193,28 @@ def load_data(name):
         sys.stderr.write('Could not find: {}\n'.format(name))
         exit(1)
     genes = np.array([ gene.upper() for gene in genes ])
-    return X, cells, genes
+    if check_counts:
+        return X, cells, genes, counts
+    else:
+        return X, cells, genes, True
+
+
+def check_sparse(X, name):
+    cx = X.tocoo()
+    for el in cx.data:
+        if not el.is_integer():
+            print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+            return False
+    return True
+
+
+def check_ndarray(X, name):
+    for el in X.flat:
+        if not el.is_integer():
+            print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+            return False
+    return True
+
 
 def load_names(data_names, norm=False, log1p=False, verbose=True):
     # Load datasets.
@@ -195,22 +224,9 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     n_cells = 0
     counts = True
     for name in data_names:
-        X_i, cells_i, genes_i = load_data(name)
-        if scipy.sparse.issparse(X_i):
-            cx = X_i.tocoo()
-            for el in cx.data:
-                if not el.is_integer():
-                    print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
-                    counts = False
-                    break
-        elif type(X_i) is np.ndarray:
-            for el in X_i.flat:
-                if not el.is_integer():
-                    print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
-                    counts = False
-                    break
-        else:
-            print("WARNING: matrix {} of type {} was not checked whether is a correct matrix of counts".format(name, type(X_i)))
+        X_i, cells_i, genes_i, c = load_data(name, check_counts=counts)
+        if not c:
+            counts = False
         if norm:
             X_i = normalize(X_i, axis=1)
         if log1p:
@@ -229,6 +245,7 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
               .format(n_cells))
 
     return datasets, genes_list, cells_list, n_cells, counts
+
 
 def save_datasets(datasets, genes, data_names, verbose=True,
                   truncate_neg=False):
@@ -251,6 +268,7 @@ def save_datasets(datasets, genes, data_names, verbose=True,
                 of.write('\t'.join(
                     [ str(expr) for expr in dataset[:, g] ]
                 ) + '\n')
+
 
 def process(data_names, min_trans=MIN_TRANSCRIPTS):
     for name in data_names:
@@ -276,6 +294,6 @@ def process(data_names, min_trans=MIN_TRANSCRIPTS):
         print('Successfully processed {}'.format(name))
 
 if __name__ == '__main__':
-    from config import data_names
+    from .config import data_names
 
     process(data_names)
