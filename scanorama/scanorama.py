@@ -380,26 +380,31 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     # Normalize.
     if verbose:
         print('Normalizing...')
-    datasets_norm = datasets.copy()
     for i, ds in enumerate(datasets):
-        datasets_norm[i] = normalize(ds, axis=1)
+        datasets[i] = np.log1p(normalize(ds, axis=1))
 
     # Compute compressed embedding.
     if dimred > 0:
         if verbose:
             print('Reducing dimension...')
         datasets_dimred = dimensionality_reduce(datasets, dimred=dimred)
-        if verbose:
-            print('Done processing.')
-        return datasets_dimred, datasets_norm, genes
 
     if verbose:
         print('Done processing.')
 
-    return datasets_norm, genes
+    if not hvg is None and dimred > 0:
+        return datasets_dimred, datasets, genes
+    elif dimred > 0:
+        return datasets_dimred, datasets
+    elif not hvg is None:
+        return datasets, genes
+    else:
+        return datasets
 
 
 def calculate_tsne(matrix, cells, namespace, output):
+    from time import time
+    t0 = time()
     outfile = namespace + '_tsne.txt'
     o = open(output + outfile, 'w')
     o.write('Cell ID\ttSNE-x\ttSNE-y\n')
@@ -417,6 +422,7 @@ def calculate_tsne(matrix, cells, namespace, output):
 
     embedding = visualize(matrix.toarray(), labels, output + namespace, list(datasets.keys()),
                           multicore_tsne=False, viz_cluster=True)
+    print('Calculating t-SNE embeddings in {.3f} minutes'.format((time()-t0)/60))
 
     for cell, (x, y) in zip(cells, embedding):
         o.write('%s\t%.5f\t%.5f\n' % (cell, x, y))

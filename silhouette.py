@@ -19,7 +19,7 @@ if __name__ == '__main__':
     datasets, genes = merge_datasets(datasets, genes_list)
     datasets_dimred, datasets_norm, genes = process_data(datasets, genes)
 
-    mmwrite(output + 'panorama_nocorrection_silh.mtx', vstack(datasets_dimred))
+    #mmwrite(output + 'panorama_nocorrection_silh.mtx', vstack(datasets_dimred))
 
     # Baseline without correction.
     X = np.concatenate(datasets_dimred)
