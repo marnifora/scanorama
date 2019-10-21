@@ -422,7 +422,7 @@ def calculate_tsne(matrix, cells, namespace, output):
 
     embedding = visualize(matrix.toarray(), labels, output + namespace, list(datasets.keys()),
                           multicore_tsne=False, viz_cluster=True)
-    print('Calculating t-SNE embeddings in {.3f} minutes'.format((time()-t0)/60))
+    print('Calculating t-SNE embeddings in {:.3f} minutes'.format((time()-t0)/60))
 
     for cell, (x, y) in zip(cells, embedding):
         o.write('%s\t%.5f\t%.5f\n' % (cell, x, y))
