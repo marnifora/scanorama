@@ -57,4 +57,4 @@ else:
 
 if tsne:
     print('Caculating t-SNE')
-    calculate_tsne(vstack(datasets_adjusted), cells, namespace, output)
+    calculate_tsne(vstack(datasets_adjusted), cells, namespace, output, 10)
