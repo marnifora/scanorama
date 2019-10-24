@@ -12,6 +12,8 @@ parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, r
                     default='./results/', help='Directory for the results')
 parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', type=str, required=False,
                     default=None, help='Namespace for the analysis')
+parser.add_argument('--n_jobs', action='store', metavar='NUMBER', type=int,
+                    default=5, help='Number of jobs for calculating tSNE, default is 5')
 args = parser.parse_args()
 
 output = args.output
@@ -21,6 +23,8 @@ matrix = mmread(args.matrix)
 cells = open(args.cells, 'r').read().strip().split('\n')
 namespace = args.namespace
 if namespace is None:
-    namespace = args.matrix.split('/')[-1].split('_')[0]
+    outfile = args.matrix.split('/')[-1].replace('matrix', 'tsne').replace('.mtx', '.tsv')
+else:
+    outfile = namespace + '_tsne.tsv'
 
-calculate_tsne(matrix, cells, namespace, output)
+calculate_tsne(matrix, cells, outfile, output, n_jobs=args.n_jobs)

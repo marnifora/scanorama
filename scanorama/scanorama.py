@@ -402,55 +402,60 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
         return datasets
 
 
-def calculate_tsne(matrix, cells, namespace, output):
+def calculate_tsne(matrix, cells, outfile, output, n_jobs, viz_all=False, viz_cluster=False):
     from time import time
     t0 = time()
-    outfile = namespace + '_tsne.txt'
-    o = open(output + outfile, 'w')
-    o.write('Cell ID\ttSNE-x\ttSNE-y\n')
 
-    labels = []
-    datasets = {}
-    last = 0
-    for cell in cells:
-        d = cell.split(':')[-1]
-        if d not in datasets:
-            datasets[d] = last + 1
-            last += 1
-        labels.append(datasets[d])
-    labels = np.array(labels, dtype=int)
+    if viz_all or viz_cluster:
+        labels = []
+        datasets = {}
+        last = 0
+        for cell in cells:
+            d = cell.split(':')[-1]
+            if d not in datasets:
+                datasets[d] = last + 1
+                last += 1
+            labels.append(datasets[d])
+        labels = np.array(labels, dtype=int)
 
-    embedding = visualize(matrix.toarray(), labels, output + namespace, list(datasets.keys()),
-                          multicore_tsne=False, viz_cluster=True)
+        embedding = visualize(matrix.toarray(), labels=labels, namespace=outfile, names=list(datasets.keys()),
+                              multicore_tsne=True, viz_cluster=viz_cluster, viz_all=viz_all, n_jobs=n_jobs)
+    else:
+        embedding = visualize(matrix.toarray(), multicore_tsne=True, n_jobs=n_jobs)
     print('Calculating t-SNE embeddings in {:.3f} minutes'.format((time()-t0)/60))
 
-    for cell, (x, y) in zip(cells, embedding):
-        o.write('%s\t%.5f\t%.5f\n' % (cell, x, y))
-    o.close()
+    with open(output + outfile, 'w') as o:
+        o.write('Cell ID\ttSNE-x\ttSNE-y\n')
+        for cell, (x, y) in zip(cells, embedding):
+            o.write('%s\t%.5f\t%.5f\n' % (cell, x, y))
+
+    return embedding
 
 
 # Plot t-SNE visualization.
-def visualize(assembled, labels, namespace, names,
+def visualize(assembled, namespace=None, names=None, labels=None,
               gene_names=None, gene_expr=None, genes=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
               shuffle_ds=False, size=1, multicore_tsne=True,
-              image_suffix='.svg', viz_cluster=False, colors=None):
+              image_suffix='.svg', viz_cluster=False, viz_all=False, colors=None, n_jobs=40):
     # Fit t-SNE.
     if embedding is None:
         try:
             from MulticoreTSNE import MulticoreTSNE
+            print('MulticoreTSNE')
             tsne = MulticoreTSNE(
                 n_iter=n_iter, perplexity=perplexity,
                 verbose=verbose, random_state=69,
                 learning_rate=learn_rate,
                 early_exaggeration=early_exag,
-                n_jobs=40
+                n_jobs=n_jobs
             )
         except ImportError:
             multicore_tsne = False
 
         if not multicore_tsne:
+            print('TSNEApprox')
             tsne = TSNEApprox(
                 n_iter=n_iter, perplexity=perplexity,
                 verbose=verbose, random_state=69,
@@ -471,12 +476,13 @@ def visualize(assembled, labels, namespace, names,
         labels = labels[rand_idx]
 
     # Plot clusters together.
-    plot_clusters(embedding, labels, s=size, colors=colors)
-    plt.title(('Panorama ({} iter, perplexity: {}, sigma: {}, ' +
-               'knn: {}, hvg: {}, dimred: {}, approx: {})')
-              .format(n_iter, perplexity, SIGMA, KNN, HVG,
-                      DIMRED, APPROX))
-    plt.savefig(namespace + '_all' + image_suffix, dpi=500)
+    if viz_all:
+        plot_clusters(embedding, labels, s=size, colors=colors)
+        plt.title(('Panorama ({} iter, perplexity: {}, sigma: {}, ' +
+                   'knn: {}, hvg: {}, dimred: {}, approx: {})')
+                  .format(n_iter, perplexity, SIGMA, KNN, HVG,
+                          DIMRED, APPROX))
+        plt.savefig(namespace + '_all' + image_suffix, dpi=500)
 
     # Plot clusters individually.
     if viz_cluster and not shuffle_ds:
