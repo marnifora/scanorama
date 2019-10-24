@@ -28,7 +28,7 @@ elif args.tsne is not None:
 print('Starting calculating silh scores for {} file'.format(outfile))
 
 with open(args.real, 'r') as f:
-    real = f.read().split('\n')
+    real = f.read().strip().split('\n')
 print('Real labels loaded')
 
 t0 = time()
