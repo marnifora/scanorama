@@ -43,10 +43,14 @@ if write or tsne:
 if write:
     t1 = time()
     mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
-    with open(output + '{}_genes_list.txt'.format(namespace), 'w') as o:
+    with open(output + '{}_genes.txt'.format(namespace), 'w') as o:
         o.write('\n'.join(genes))
-    with open(output + '{}_cells_list.txt'.format(namespace), 'w') as o:
+    with open(output + '{}_cells.txt'.format(namespace), 'w') as o:
         o.write('\n'.join(cells))
+    with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
+        o.write('Cell ID\tDataset\n')
+        for cell, name in cells:
+            o.write('{}\t{}\n'.format(cell, name))
     timew += time() - t1
 
 if write:
@@ -57,4 +61,4 @@ else:
 
 if tsne:
     print('Caculating t-SNE')
-    calculate_tsne(vstack(datasets_adjusted), cells, namespace, output, 10)
+    calculate_tsne(vstack(datasets_adjusted), cells, namespace + '_tsne_adjusted.tsv', output, 10)

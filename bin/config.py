@@ -14,7 +14,7 @@ parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', ty
 parser.add_argument('-m', '--metadata', action='store', metavar='METADATA', type=str, required=False,
                     default=None, help='Optional file with metadata')
 parser.add_argument('-pc', '--dimred', action='store', metavar='NUMBER', type=int, required=False,
-                    default=100, help='Number of dimensions after reduction')
+                    default=100, help='Number of dimensions after reduction, default = 100')
 parser.add_argument('-w', '--write', action='store_true')
 parser.add_argument('--tsne', action='store_true')
 parser.add_argument('--uncorrected', action='store_true')
