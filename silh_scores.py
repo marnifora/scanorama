@@ -18,8 +18,7 @@ group1.add_argument('-umap', '--umap', action='store', metavar='MTX_FILE', type=
 parser.add_argument('-p', '--path', action='store', metavar='PATH', type=str, help='Directory of the given data')
 parser.add_argument('-r', '--real', action='store', metavar='FILE', type=str,
                     help='Assigned clusters')
-parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, required=False,
-                    default='./results/', help='Directory for the results')
+parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, help='Directory for the results')
 args = parser.parse_args()
 
 path = args.path

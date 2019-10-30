@@ -378,31 +378,32 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
         genes = np.array(sorted(top_genes))
 
     # Normalize.
+    datasets_norm = []
     if verbose:
         print('Normalizing...')
-    for i, ds in enumerate(datasets):
-        datasets[i] = np.log1p(normalize(ds, axis=1))
+    for ds in datasets:
+        datasets_norm.append(np.log1p(normalize(ds.copy(), axis=1)))
 
     # Compute compressed embedding.
     if dimred > 0:
         if verbose:
             print('Reducing dimension...')
-        datasets_dimred = dimensionality_reduce(datasets, dimred=dimred)
+        datasets_dimred = dimensionality_reduce([ds.copy() for ds in datasets_norm], dimred=dimred)
 
     if verbose:
         print('Done processing.')
 
     if not hvg is None and dimred > 0:
-        return datasets_dimred, datasets, genes
+        return datasets_dimred, datasets_norm, genes
     elif dimred > 0:
-        return datasets_dimred, datasets
+        return datasets_dimred, datasets_norm
     elif not hvg is None:
-        return datasets, genes
+        return datasets_norm, genes
     else:
-        return datasets
+        return datasets_norm
 
 
-def calculate_tsne(matrix, cells, outfile, output, n_jobs, viz_all=False, viz_cluster=False):
+def calculate_tsne(matrix, cells, outfile, output, n_jobs=5, multicore_tsne=True, viz_all=False, viz_cluster=False):
     from time import time
     t0 = time()
 
@@ -419,9 +420,9 @@ def calculate_tsne(matrix, cells, outfile, output, n_jobs, viz_all=False, viz_cl
         labels = np.array(labels, dtype=int)
 
         embedding = visualize(matrix.toarray(), labels=labels, namespace=outfile, names=list(datasets.keys()),
-                              multicore_tsne=True, viz_cluster=viz_cluster, viz_all=viz_all, n_jobs=n_jobs)
+                              multicore_tsne=multicore_tsne, viz_cluster=viz_cluster, viz_all=viz_all, n_jobs=n_jobs)
     else:
-        embedding = visualize(matrix.toarray(), multicore_tsne=True, n_jobs=n_jobs)
+        embedding = visualize(matrix.toarray(), multicore_tsne=multicore_tsne, n_jobs=n_jobs)
     print('Calculating t-SNE embeddings in {:.3f} minutes'.format((time()-t0)/60))
 
     with open(output + outfile, 'w') as o:
@@ -441,20 +442,22 @@ def visualize(assembled, namespace=None, names=None, labels=None,
               image_suffix='.svg', viz_cluster=False, viz_all=False, colors=None, n_jobs=40):
     # Fit t-SNE.
     if embedding is None:
-        try:
-            from MulticoreTSNE import MulticoreTSNE
-            print('MulticoreTSNE')
-            tsne = MulticoreTSNE(
-                n_iter=n_iter, perplexity=perplexity,
-                verbose=verbose, random_state=69,
-                learning_rate=learn_rate,
-                early_exaggeration=early_exag,
-                n_jobs=n_jobs
-            )
-        except ImportError:
-            multicore_tsne = False
+        no_multitsne = False
+        if multicore_tsne:
+            try:
+                from MulticoreTSNE import MulticoreTSNE
+                print('MulticoreTSNE')
+                tsne = MulticoreTSNE(
+                    n_iter=n_iter, perplexity=perplexity,
+                    verbose=verbose, random_state=69,
+                    learning_rate=learn_rate,
+                    early_exaggeration=early_exag,
+                    n_jobs=n_jobs
+                )
+            except ImportError:
+                no_multitsne = True
 
-        if not multicore_tsne:
+        if not multicore_tsne or no_multitsne:
             print('TSNEApprox')
             tsne = TSNEApprox(
                 n_iter=n_iter, perplexity=perplexity,
