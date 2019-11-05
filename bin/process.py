@@ -190,17 +190,16 @@ def load_data(dname):
             cells = np.array(f.read().rstrip().split())
     elif os.path.isfile(dname + '.raw.dge.txt'):
         X = mmread(dname + '.raw.dge.txt')
-        counts = check_ndarray(X, dname)
         read = True
     elif os.path.isfile(dname + '.mtx'):
         X = mmread(dname + '.mtx')
-        counts = check_sparse(X, dname)
         read = True
     else:
         sys.stderr.write('Could not find: {}\n'.format(dname))
         exit(1)
 
     if read:
+        counts = check_sparse(X, dname)
         with open('/'.join(dname.split('/')[:-1]) + '/genes.txt', 'r') as f:
             genes = np.array(f.read().rstrip().split())
         with open('/'.join(dname.split('/')[:-1]) + '/cells.txt', 'r') as f:
@@ -212,10 +211,12 @@ def load_data(dname):
 
 def check_sparse(X, name):
     cx = X.tocoo()
-    for el in cx.data:
-        if not el.is_integer():
-            print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
-            return False
+    dt = str(cx.dtype)
+    if not dt.startswith('int'):
+        for el in cx.data:
+            if not el.is_integer():
+                print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
+                return False
     return True
 
 
