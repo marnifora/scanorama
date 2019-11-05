@@ -1,6 +1,6 @@
 import fileinput
 import argparse
-import os
+import os, sys
 
 parser = argparse.ArgumentParser(description='Run Scanorama based on given datasets.')
 parser.add_argument('file', action='store', metavar='FILE', type=str,
@@ -42,7 +42,12 @@ with open(args.file, 'r') as file:
                 dn = (path + '/' + f).replace('///', '/').replace('//', '/')
                 data_names.append(dn)
     if not names and data_names:
-        names = [el.strip().split('/')[-1].split('.')[0] for el in data_names]
+        names = [el.strip().split('/')[-2] for el in data_names]
+        if len(set(names)) < len(names):
+            names = [el.strip().split('/')[-1].split('.')[0] for el in data_names]
+            if len(set(names)) < len(names):
+                print('ERROR: names of datasets are not unique')
+                sys.exit()
     print('Data names loaded')
 
 if args.metadata is not None:

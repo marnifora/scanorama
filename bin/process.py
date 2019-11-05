@@ -204,6 +204,9 @@ def load_data(dname):
             genes = np.array(f.read().rstrip().split())
         with open('/'.join(dname.split('/')[:-1]) + '/cells.txt', 'r') as f:
             cells = np.array(f.read().rstrip().split())
+    if len(cells) != X.shape[0]:
+        X = X.transpose()
+    assert (len(cells), len(genes)) == X.shape
 
     genes = np.array([ gene.upper() for gene in genes ])
     return X, cells, genes, counts
