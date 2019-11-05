@@ -407,6 +407,7 @@ def calculate_tsne(matrix, cells, outfile, output, n_jobs=5, multicore_tsne=True
     from time import time
     t0 = time()
 
+    print('Starting calculating TSNE coords for {}'.format(output+outfile))
     if viz_all or viz_cluster:
         labels = []
         datasets = {}

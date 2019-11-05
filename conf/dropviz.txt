@@ -1,0 +1,9 @@
+Cerebellum/F_GRCm38.81.P60Cerebellum_ALT
+Entopeduncular/F_GRCm38.81.P60EntoPeduncular
+FrontalCortex/F_GRCm38.81.P60Cortex_noRep5_FRONTALonly
+GlobusPallidus/F_GRCm38.81.P60GlobusPallidus
+Hippocampus/F_GRCm38.81.P60Hippocampus
+PosteriorCortex/F_GRCm38.81.P60Cortex_noRep5_POSTERIORonly
+Striatum/F_GRCm38.81.P60Striatum
+SubstantiaNigra/F_GRCm38.81.P60SubstantiaNigra
+Thalamus/F_GRCm38.81.P60Thalamus

@@ -2,6 +2,7 @@ import gzip
 import numpy as np
 import os.path
 import scipy.sparse
+from scipy.io import mmread
 from scipy.sparse import csr_matrix
 from sklearn.preprocessing import normalize
 import sys
@@ -165,29 +166,36 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     return X, genes
 
 
-def load_data(name):
-    if os.path.isfile(name + '.h5.npz'):
-        X = scipy.sparse.load_npz(name + '.h5.npz')
-        counts = check_sparse(X, name)
-        with open(name + '.h5.genes.txt') as f:
+def load_data(dname):
+    if os.path.isfile(dname + '.h5.npz'):
+        X = scipy.sparse.load_npz(dname + '.h5.npz')
+        counts = check_sparse(X, dname)
+        with open(dname + '.h5.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
         cells = None
-    elif os.path.isfile(name + '.npz'):
-        data = np.load(name + '.npz')
+    elif os.path.isfile(dname + '.npz'):
+        data = np.load(dname + '.npz')
         X = data['X']
-        counts = check_ndarray(X, name)
+        counts = check_ndarray(X, dname)
         genes = data['genes']
         cells = data['cells']
         data.close()
-    elif os.path.isfile(name + '/tab.npz'):
-        X = scipy.sparse.load_npz(name + '/tab.npz')
-        counts = check_sparse(X, name)
-        with open(name + '/tab.genes.txt') as f:
+    elif os.path.isfile(dname + '/tab.npz'):
+        X = scipy.sparse.load_npz(dname + '/tab.npz')
+        counts = check_sparse(X, dname)
+        with open(dname + '/tab.genes.txt') as f:
             genes = np.array(f.read().rstrip().split())
-        with open(name + '/tab.cells.txt', 'r') as f:
+        with open(dname + '/tab.cells.txt', 'r') as f:
+            cells = np.array(f.read().rstrip().split())
+    elif os.path.isfile(dname + '.raw.dge.txt'):
+        X = mmread(dname + '.raw.dge.txt')
+        counts = check_sparse(X, dname)
+        with open('/'.join(dname.split('/')[:-1]) + '/genes.txt', 'r') as f:
+            genes = np.array(f.read().rstrip().split())
+        with open('/'.join(dname.split('/')[:-1]) + '/cells.txt', 'r') as f:
             cells = np.array(f.read().rstrip().split())
     else:
-        sys.stderr.write('Could not find: {}\n'.format(name))
+        sys.stderr.write('Could not find: {}\n'.format(dname))
         exit(1)
     genes = np.array([ gene.upper() for gene in genes ])
     return X, cells, genes, counts
@@ -217,8 +225,8 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     cells_list = []
     n_cells = 0
     counts = True
-    for name in data_names:
-        X_i, cells_i, genes_i, c = load_data(name)
+    for dname in data_names:
+        X_i, cells_i, genes_i, c = load_data(dname)
         if not c:
             counts = False
         if norm:
@@ -233,7 +241,7 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
         n_cells += X_i.shape[0]
         if verbose:
             print('Loaded {} with {} genes and {} cells'.
-                  format(name, X_i.shape[1], X_i.shape[0]))
+                  format(dname, X_i.shape[1], X_i.shape[0]))
     if verbose:
         print('Found {} cells among all datasets'
               .format(n_cells))
