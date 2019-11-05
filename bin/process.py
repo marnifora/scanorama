@@ -167,6 +167,7 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
 
 
 def load_data(dname):
+    read = False
     if os.path.isfile(dname + '.h5.npz'):
         X = scipy.sparse.load_npz(dname + '.h5.npz')
         counts = check_sparse(X, dname)
@@ -189,14 +190,21 @@ def load_data(dname):
             cells = np.array(f.read().rstrip().split())
     elif os.path.isfile(dname + '.raw.dge.txt'):
         X = mmread(dname + '.raw.dge.txt')
+        read = True
+    elif os.path.isfile(dname + '.mtx'):
+        X = mmread(dname + '.mtx')
+        read = True
+    else:
+        sys.stderr.write('Could not find: {}\n'.format(dname))
+        exit(1)
+
+    if read:
         counts = check_sparse(X, dname)
         with open('/'.join(dname.split('/')[:-1]) + '/genes.txt', 'r') as f:
             genes = np.array(f.read().rstrip().split())
         with open('/'.join(dname.split('/')[:-1]) + '/cells.txt', 'r') as f:
             cells = np.array(f.read().rstrip().split())
-    else:
-        sys.stderr.write('Could not find: {}\n'.format(dname))
-        exit(1)
+            
     genes = np.array([ gene.upper() for gene in genes ])
     return X, cells, genes, counts
 
