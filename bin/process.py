@@ -278,7 +278,7 @@ def check_sparse(X, name):
 
 def check_ndarray(X, name):
     for el in X.flat:
-        if not el.is_integer():
+        if el % 1 != 0:
             print("WARNING: input matrix for dataset {} is not a matrix of counts".format(name))
             return False
     return True
