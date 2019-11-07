@@ -39,10 +39,15 @@ with open(args.file, 'r') as file:
             for f in fields:
                 if f.strip() == '':
                     continue
-                dn = (path + '/' + f).replace('///', '/').replace('//', '/')
+                dn = os.path.join(path, f)
                 data_names.append(dn)
     if not names and data_names:
-        names = ['.'.join(el.strip().split('/')[-1].split('.')[:-1]) for el in data_names]
+        names = []
+        for el in data_names:
+            n = el.strip().split('/')[-1].split('.')
+            if len(n) > 1:
+                n = '.'.join(n[:-1])
+            names.append(n)
         if len(set(names)) < len(names):
             names = [el.strip().split('/')[-2] for el in data_names]
             if len(set(names)) < len(names):
