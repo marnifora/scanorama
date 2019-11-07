@@ -96,7 +96,17 @@ def load_h5(fname, genome='mm10'):
             raise Exception('File is missing one or more required datasets.')    
 
     return X, np.array(genes)
-        
+
+
+def load_h5ad(fname):
+    import anndata
+    adata = anndata.read_h5ad(fname)
+    X = adata.X
+    cells = np.array(adata.obs.index)
+    genes = np.array([el.upper() for el in adata.var.index])
+    return X, genes, cells
+
+
 def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
     X, cells, genes = load_tab(fname)
 
@@ -122,6 +132,7 @@ def process_tab(fname, min_trans=MIN_TRANSCRIPTS):
     np.savez(cache_fname, X=X, genes=genes, cells=cells)
 
     return X, cells, genes
+
 
 def process_mtx(dname, min_trans=MIN_TRANSCRIPTS):
     X, cells, genes = load_mtx(dname)
@@ -166,6 +177,31 @@ def process_h5(fname, min_trans=MIN_TRANSCRIPTS):
     return X, genes
 
 
+def process_h5ad(fname, min_trans=MIN_TRANSCRIPTS):
+    X, genes, cells = load_h5ad(fname)
+
+    gt_idx = [i for i, s in enumerate(np.sum(X != 0, axis=1))
+              if s >= min_trans]
+    X = X[gt_idx, :]
+    cells = cells[gt_idx]
+    if len(gt_idx) == 0:
+        print('Warning: 0 cells passed QC in {}'.format(fname))
+
+    if fname.endswith('.h5ad'):
+        cache_prefix = '.'.join(fname.split('.')[:-1])
+
+    cache_fname = cache_prefix + '.h5ad.npz'
+    scipy.sparse.save_npz(cache_fname, X, compressed=False)
+
+    with open(cache_prefix + '.h5ad.genes.txt', 'w') as of:
+        of.write('\n'.join(genes) + '\n')
+
+    with open(cache_prefix + '.h5ad.cells.txt', 'w') as of:
+        of.write('\n'.join(cells) + '\n')
+
+    return X, genes, cells
+
+
 def load_data(dname):
     read = False
     if os.path.isfile(dname + '.h5.npz'):
@@ -191,6 +227,13 @@ def load_data(dname):
     elif os.path.isfile(dname + '.raw.dge.txt'):
         X = mmread(dname + '.raw.dge.txt')
         read = True
+    elif os.path.isfile(dname + '.h5ad'):
+        import anndata
+        adata = anndata.read_h5ad(dname + '.h5ad')
+        X = adata.X
+        counts = check_ndarray(X, dname)
+        cells = np.array(adata.obs.index)
+        genes = adata.var.index
     elif os.path.isfile(dname + '.mtx'):
         X = mmread(dname + '.mtx')
         read = True
@@ -293,7 +336,11 @@ def process(data_names, min_trans=MIN_TRANSCRIPTS):
             process_h5(name, min_trans=min_trans)
         elif os.path.isfile(name + '.h5'):
             process_h5(name + '.h5', min_trans=min_trans)
-        elif os.path.isfile(name):
+        elif os.path.isfile(name + '.h5ad'):
+            process_h5ad(name, min_trans=min_trans)
+        elif os.path.isfile(name) and name.endswith('.h5ad'):
+            process_h5ad(name, min_trans=min_trans)
+        elif os.path.isfile(name) and name.endswith('.txt'):
             process_tab(name, min_trans=min_trans)
         elif os.path.isfile(name + '.txt'):
             process_tab(name + '.txt', min_trans=min_trans)

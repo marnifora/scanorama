@@ -32,7 +32,7 @@ with open(args.file, 'r') as file:
         l = line.rstrip().split('\t')
         if len(l) == 2:
             names.append(l[0])
-            dn = (path + '/' + l[1]).replace('///', '/').replace('//', '/')
+            dn = os.path.join(path, l[1])
             data_names.append(dn)
         else:
             fields = line.rstrip().split(',')

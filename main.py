@@ -16,6 +16,7 @@ if write and counts:
     t1 = time()
     mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
     timew = time() - t1
+    print('Matrix of counts has been written in {:.3f} min'.format(timew/60))
 elif write and not counts:
     timew = 0.0
     print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
@@ -28,6 +29,7 @@ if write:
     mmwrite('{}{}_matrix_norm.mtx'.format(output, namespace), vstack(datasets_norm))
     mmwrite('{}{}_matrix_dimred.mtx'.format(output, namespace), vstack(datasets_dimred))
     timew += time() - t1
+    print('Norm and dimred matrices have been written in {:.3f} min'.format(timew/60))
 
 print('Scanorama adjusting process')
 datasets_adjusted = assemble(datasets_dimred, ds_names=names)
@@ -39,6 +41,7 @@ if write or tsne:
         for cell in c:
             cells.append('%s:%s' % (cell, name))
     timew += time() - t1
+    print("Cells' names has been established in {} s".format(timew))
 
 if write:
     t1 = time()
@@ -52,6 +55,7 @@ if write:
         for cell, name in cells:
             o.write('{}\t{}\n'.format(cell, name))
     timew += time() - t1
+    print('Adjusted matrix, genes, cells and metadata files have been written in {} min'.format(timew/60))
 
 if write:
     print('Integrated and batch corrected panoramas in {:.3f} minutes (including {:.3f}'.format((time()-t0)/60, timew/60)
