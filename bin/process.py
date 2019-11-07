@@ -205,13 +205,17 @@ def process_h5ad(fname, min_trans=MIN_TRANSCRIPTS):
 def load_data(dname):
     read = False
     if os.path.isfile(dname + '.h5.npz') or dname.endswith('.h5.npz'):
-        X = scipy.sparse.load_npz(dname + '.h5.npz')
+        if not dname.endswith('.h5.npz'):
+            dname = dname + '.h5.npz'
+        X = scipy.sparse.load_npz(dname)
         counts = check_sparse(X, dname)
-        with open(dname + '.h5.genes.txt') as f:
+        with open(dname.replace('.h5.npz', '.h5.genes.txt')) as f:
             genes = np.array(f.read().rstrip().split())
         cells = None
     elif os.path.isfile(dname + '.npz') and dname.endswith('.npz'):
-        data = np.load(dname + '.npz')
+        if not dname.endswith('.npz'):
+            dname = dname + '.npz'
+        data = np.load(dname)
         X = data['X']
         counts = check_ndarray(X, dname)
         genes = data['genes']
@@ -225,17 +229,23 @@ def load_data(dname):
         with open(dname + '/tab.cells.txt', 'r') as f:
             cells = np.array(f.read().rstrip().split())
     elif os.path.isfile(dname + '.raw.dge.txt') or dname.endswith('.raw.dge.txt'):
-        X = mmread(dname + '.raw.dge.txt')
+        if not dname.endswith('.raw.dge.txt'):
+            dname = dname + '.raw.dge.txt'
+        X = mmread(dname)
         read = True
     elif os.path.isfile(dname + '.h5ad') or dname.endswith('.h5ad'):
         import anndata
-        adata = anndata.read_h5ad(dname + '.h5ad')
+        if not dname.endswith('.h5ad'):
+            dname = dname + '.h5ad'
+        adata = anndata.read_h5ad(dname)
         X = adata.X
         counts = check_ndarray(X, dname)
         cells = np.array(adata.obs.index)
         genes = adata.var.index
     elif os.path.isfile(dname + '.mtx') or dname.endswith('.mtx'):
-        X = mmread(dname + '.mtx')
+        if not dname.endswith('.mtx'):
+            dname = dname + '.mtx'
+        X = mmread(dname)
         read = True
     else:
         sys.stderr.write('Could not find: {}\n'.format(dname))
