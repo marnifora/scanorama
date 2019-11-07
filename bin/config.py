@@ -47,6 +47,8 @@ with open(args.file, 'r') as file:
             n = el.strip().split('/')[-1].split('.')
             if len(n) > 1:
                 n = '.'.join(n[:-1])
+            else:
+                n = n[0]
             names.append(n)
         if len(set(names)) < len(names):
             names = [el.strip().split('/')[-2] for el in data_names]
