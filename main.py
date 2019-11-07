@@ -12,6 +12,9 @@ datasets, genes_list, cells_list, n_cells, counts = load_names(data_names)
 print('Selecting common genes across all datasets')
 datasets, genes = merge_datasets(datasets, genes_list, ds_names=names)
 
+if len(datasets) == 1:
+    print('WARNING: only one dataset given - Scanorama will not do anything!')
+
 if write and counts:
     t1 = time()
     mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))

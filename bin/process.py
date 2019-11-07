@@ -212,7 +212,7 @@ def load_data(dname):
         with open(dname.replace('.h5.npz', '.h5.genes.txt')) as f:
             genes = np.array(f.read().rstrip().split())
         cells = None
-    elif os.path.isfile(dname + '.npz') and dname.endswith('.npz'):
+    elif os.path.isfile(dname + '.npz') or dname.endswith('.npz'):
         if not dname.endswith('.npz'):
             dname = dname + '.npz'
         data = np.load(dname)
