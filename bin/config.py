@@ -42,9 +42,9 @@ with open(args.file, 'r') as file:
                 dn = (path + '/' + f).replace('///', '/').replace('//', '/')
                 data_names.append(dn)
     if not names and data_names:
-        names = [el.strip().split('/')[-2] for el in data_names]
+        names = ['.'.join(el.strip().split('/')[-1].split('.')[:-1]) for el in data_names]
         if len(set(names)) < len(names):
-            names = [el.strip().split('/')[-1].split('.')[0] for el in data_names]
+            names = [el.strip().split('/')[-2] for el in data_names]
             if len(set(names)) < len(names):
                 print('ERROR: names of datasets are not unique')
                 sys.exit()
