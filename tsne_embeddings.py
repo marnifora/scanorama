@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description='Counting t-SNE embeddings based on
 parser.add_argument('matrix', action='store', metavar='MTX_FILE', type=str,
                     help='Matrix file')
 parser.add_argument('-c', '--cells', action='store', metavar='FILE', type=str,
-                    help='File with names of cells')
+                    help='File with names of cells, default [NAMESPACE]_cells.txt')
 parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, required=False,
                     help='Directory for the results, if not given the same as PATH')
 parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', type=str, required=False,

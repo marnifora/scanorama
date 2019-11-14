@@ -2,7 +2,7 @@ from bin.process import load_names
 from scanorama.scanorama import *
 from scipy.io import mmwrite
 from time import time
-from bin.config import data_names, names, namespace, output, write, tsne, dimred
+from bin.config import data_names, names, namespace, output, write, tsne, dimred, metadata
 
 t0 = time()
 
@@ -53,10 +53,11 @@ if write:
         o.write('\n'.join(genes))
     with open(output + '{}_cells.txt'.format(namespace), 'w') as o:
         o.write('\n'.join(cells))
-    with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
-        o.write('Cell ID\tDataset\n')
-        for cell, name in cells:
-            o.write('{}\t{}\n'.format(cell, name))
+    if metadata is None:
+        with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
+            o.write('Cell ID\tDataset\n')
+            for cell, name in [el.split(':') for el in cells]:
+                o.write('{}\t{}\n'.format(cell, name))
     timew += time() - t1
     print('Adjusted matrix, genes, cells and metadata files have been written in {} min'.format(timew/60))
 

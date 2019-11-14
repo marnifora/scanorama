@@ -11,14 +11,15 @@ parser = argparse.ArgumentParser(description='Counting t-SNE embeddings based on
 group1 = parser.add_mutually_exclusive_group(required=True)
 group1.add_argument('-m', '--matrix', action='store', metavar='MTX_FILE', type=str,
                     help='Matrix file')
-group1.add_argument('-tsne', '--tsne', action='store', metavar='MTX_FILE', type=str,
+group1.add_argument('-tsne', '--tsne', action='store', metavar='FILE', type=str,
                     help='File with tSNE coords')
-group1.add_argument('-umap', '--umap', action='store', metavar='MTX_FILE', type=str,
+group1.add_argument('-umap', '--umap', action='store', metavar='FILE', type=str,
                     help='File with UMAP coords')
 parser.add_argument('-p', '--path', action='store', metavar='PATH', type=str, help='Directory of the given data')
 parser.add_argument('-r', '--real', action='store', metavar='FILE', type=str,
                     help='Assigned clusters')
-parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, help='Directory for the results')
+parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, help='Directory for the results, if not'
+                                                                                    ' given the same as the PATH')
 args = parser.parse_args()
 
 path = args.path
@@ -32,10 +33,10 @@ if args.matrix is not None:
     outfile = args.matrix.replace('matrix', 'silh').replace('.mtx', '.txt')
 elif args.tsne is not None:
     input = pd.read_csv(path + args.tsne, sep='\t', header=0, index_col=0).values
-    outfile = args.tsne.replace('tsne_', 'silh_tsne-').replace('.tsv', '.txt')
+    outfile = args.tsne.replace('tsne_', 'silh_tsne-').replace('_tsne.', '_silh-tsne.').replace('.tsv', '.txt')
 elif args.umap is not None:
     input = pd.read_csv(path + args.umap, sep='\t', header=0, index_col=0).values
-    outfile = args.umap.replace('umap_', 'silh_umap-').replace('.tsv', '.txt')
+    outfile = args.umap.replace('umap_', 'silh_umap-').replace('_umap.', '_silh-umap.').replace('.tsv', '.txt')
 print('Starting calculating silh scores for {} file'.format(outfile))
 
 with open(args.real, 'r') as f:

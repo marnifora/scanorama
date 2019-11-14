@@ -20,8 +20,9 @@ parser.add_argument('--tsne', action='store_true')
 parser.add_argument('--uncorrected', action='store_true')
 args = parser.parse_args()
 
-path, output, namespace, write, tsne, uncorrected, dimred = args.path, args.output, args.namespace, args.write, \
-                                                            args.tsne, args.uncorrected, args.dimred
+path, output, namespace, write, tsne, uncorrected, dimred, metadata = args.path, args.output, args.namespace, \
+                                                                      args.write, args.tsne, args.uncorrected, \
+                                                                      args.dimred, args.metadata
 
 if not os.path.isdir(output):
     os.mkdir(output)
