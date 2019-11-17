@@ -30,7 +30,7 @@ datasets_dimred, datasets_norm = process_data(datasets, genes, dimred=dimred)
 if write:
     t1 = time()
     mmwrite('{}{}_matrix_norm.mtx'.format(output, namespace), vstack(datasets_norm))
-    mmwrite('{}{}_matrix_dimred.mtx'.format(output, namespace), vstack(datasets_dimred))
+    mmwrite('{}{}_matrix_dimred-fbpca.mtx'.format(output, namespace), vstack(datasets_dimred))
     timew += time() - t1
     print('Norm and dimred matrices have been written in {:.3f} min'.format(timew/60))
 

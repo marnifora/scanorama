@@ -15,6 +15,8 @@ parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', ty
 parser.add_argument('-p', '--path', action='store', metavar='PATH', type=str, help='Directory of the given data')
 parser.add_argument('--n_jobs', action='store', metavar='NUMBER', type=int,
                     default=5, help='Number of jobs for calculating tSNE, default is 5')
+parser.add_argument('--random_state', action='store', metavar='NUMBER', type=int,
+                    default=2, help='Random state for calculating tSNE, default is 2')
 parser.add_argument('--nomultitsne', action='store_true', help='If MulticoreTSNE package should NOT be used')
 args = parser.parse_args()
 
@@ -45,4 +47,5 @@ else:
 matrix = mmread(path + args.matrix)
 cells = open(path + cells_file, 'r').read().strip().split('\n')
 
-calculate_tsne(matrix, cells, outfile, output, n_jobs=args.n_jobs, multicore_tsne=multicore_tsne)
+calculate_tsne(matrix, cells, outfile, output, n_jobs=args.n_jobs, multicore_tsne=multicore_tsne,
+               random_state=args.random_state)

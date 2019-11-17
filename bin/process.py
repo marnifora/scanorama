@@ -297,8 +297,10 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
             counts = False
         if norm:
             X_i = normalize(X_i, axis=1)
+            print('Normalization {} during loading'.format(dname))
         if log1p:
             X_i = np.log1p(X_i)
+            print('Log1p of {} during loading'.format(dname))
         X_i = csr_matrix(X_i)
             
         datasets.append(X_i)

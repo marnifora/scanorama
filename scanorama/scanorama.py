@@ -365,8 +365,7 @@ def dimensionality_reduce(datasets, dimred=DIMRED):
 def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
     # Only keep highly variable genes
     if not hvg is None and hvg > 0 and hvg < len(genes):
-        if verbose:
-            print('Highly variable filter...')
+        print('Highly variable filter...')
         X = vstack(datasets)
         disp = dispersion(X)
         highest_disp_idx = np.argsort(disp[0])[::-1]
@@ -379,19 +378,16 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
 
     # Normalize.
     datasets_norm = []
-    if verbose:
-        print('Normalizing...')
+    print('Normalizing...')
     for ds in datasets:
         datasets_norm.append(np.log1p(normalize(ds.copy(), axis=1)))
 
     # Compute compressed embedding.
     if dimred > 0:
-        if verbose:
-            print('Reducing dimension...')
+        print('Reducing dimension...')
         datasets_dimred = dimensionality_reduce([ds.copy() for ds in datasets_norm], dimred=dimred)
 
-    if verbose:
-        print('Done processing.')
+    print('Done processing.')
 
     if not hvg is None and dimred > 0:
         return datasets_dimred, datasets_norm, genes
@@ -403,7 +399,8 @@ def process_data(datasets, genes, hvg=HVG, dimred=DIMRED, verbose=False):
         return datasets_norm
 
 
-def calculate_tsne(matrix, cells, outfile, output, n_jobs=5, multicore_tsne=True, viz_all=False, viz_cluster=False):
+def calculate_tsne(matrix, cells, outfile, output, n_jobs=5, multicore_tsne=True, viz_all=False, viz_cluster=False,
+                   random_state=2):
     from time import time
     t0 = time()
 
@@ -421,9 +418,10 @@ def calculate_tsne(matrix, cells, outfile, output, n_jobs=5, multicore_tsne=True
         labels = np.array(labels, dtype=int)
 
         embedding = visualize(matrix.toarray(), labels=labels, namespace=outfile, names=list(datasets.keys()),
-                              multicore_tsne=multicore_tsne, viz_cluster=viz_cluster, viz_all=viz_all, n_jobs=n_jobs)
+                              multicore_tsne=multicore_tsne, viz_cluster=viz_cluster, viz_all=viz_all, n_jobs=n_jobs,
+                              random_state=random_state)
     else:
-        embedding = visualize(matrix.toarray(), multicore_tsne=multicore_tsne, n_jobs=n_jobs)
+        embedding = visualize(matrix.toarray(), multicore_tsne=multicore_tsne, n_jobs=n_jobs, random_state=random_state)
     print('Calculating t-SNE embeddings in {:.3f} minutes'.format((time()-t0)/60))
 
     with open(output + outfile, 'w') as o:
@@ -440,9 +438,10 @@ def visualize(assembled, namespace=None, names=None, labels=None,
               n_iter=N_ITER, perplexity=PERPLEXITY, verbose=VERBOSE,
               learn_rate=200., early_exag=12., embedding=None,
               shuffle_ds=False, size=1, multicore_tsne=True,
-              image_suffix='.svg', viz_cluster=False, viz_all=False, colors=None, n_jobs=40):
+              image_suffix='.svg', viz_cluster=False, viz_all=False, colors=None, n_jobs=40, random_state=2):
     # Fit t-SNE.
     if embedding is None:
+        print('Random state set to {}'.format(random_state))
         no_multitsne = False
         if multicore_tsne:
             try:
@@ -450,7 +449,7 @@ def visualize(assembled, namespace=None, names=None, labels=None,
                 print('MulticoreTSNE')
                 tsne = MulticoreTSNE(
                     n_iter=n_iter, perplexity=perplexity,
-                    verbose=verbose, random_state=69,
+                    verbose=verbose, random_state=random_state,
                     learning_rate=learn_rate,
                     early_exaggeration=early_exag,
                     n_jobs=n_jobs
@@ -462,7 +461,7 @@ def visualize(assembled, namespace=None, names=None, labels=None,
             print('TSNEApprox')
             tsne = TSNEApprox(
                 n_iter=n_iter, perplexity=perplexity,
-                verbose=verbose, random_state=69,
+                verbose=verbose, random_state=random_state,
                 learning_rate=learn_rate,
                 early_exaggeration=early_exag
             )
