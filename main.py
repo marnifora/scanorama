@@ -2,7 +2,7 @@ from bin.process import load_names
 from scanorama.scanorama import *
 from scipy.io import mmwrite
 from time import time
-from bin.config import data_names, names, namespace, output, write, tsne, dimred, metadata
+from bin.config import data_names, names, namespace, output, write, tsne, dimred, metadata, scanpy
 
 t0 = time()
 
@@ -25,12 +25,22 @@ elif write and not counts:
     print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 print('Normalization and dimension reduction')
-datasets_dimred, datasets_norm = process_data(datasets, genes, dimred=dimred)
+datasets_norm = []
+print('Normalizing...')
+for ds in datasets:
+    datasets_norm.append(np.log1p(normalize(ds.copy(), axis=1)))
+if dimred > 0:
+    print('Reducing dimension...')
+    datasets_dimred = dimensionality_reduce([ds.copy() for ds in datasets_norm], dimred=dimred, scanpy=scanpy)
+# datasets_dimred, datasets_norm = process_data(datasets, genes, dimred=dimred)
 
 if write:
     t1 = time()
     mmwrite('{}{}_matrix_norm.mtx'.format(output, namespace), vstack(datasets_norm))
-    mmwrite('{}{}_matrix_dimred-fbpca.mtx'.format(output, namespace), vstack(datasets_dimred))
+    if scanpy:
+        mmwrite('{}{}_matrix_dimred-scanpy.mtx'.format(output, namespace), vstack(datasets_dimred))
+    else:
+        mmwrite('{}{}_matrix_dimred-fbpca.mtx'.format(output, namespace), vstack(datasets_dimred))
     timew += time() - t1
     print('Norm and dimred matrices have been written in {:.3f} min'.format(timew/60))
 
@@ -48,7 +58,10 @@ if write or tsne:
 
 if write:
     t1 = time()
-    mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
+    if scanpy:
+        mmwrite('{}{}_matrix_adjusted-scanpy.mtx'.format(output, namespace), vstack(datasets_adjusted))
+    else:
+        mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
     with open(output + '{}_genes.txt'.format(namespace), 'w') as o:
         o.write('\n'.join(genes))
     with open(output + '{}_cells.txt'.format(namespace), 'w') as o:
@@ -69,4 +82,7 @@ else:
 
 if tsne:
     print('Caculating t-SNE')
-    calculate_tsne(vstack(datasets_adjusted), cells, namespace + '_tsne_adjusted.tsv', output, 10)
+    if scanpy:
+        calculate_tsne(vstack(datasets_adjusted), cells, namespace + '_tsne_adjusted-scanpy.tsv', output, 10)
+    else:
+        calculate_tsne(vstack(datasets_adjusted), cells, namespace + '_tsne_adjusted.tsv', output, 10)

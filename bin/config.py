@@ -18,11 +18,12 @@ parser.add_argument('-pc', '--dimred', action='store', metavar='NUMBER', type=in
 parser.add_argument('-w', '--write', action='store_true')
 parser.add_argument('--tsne', action='store_true')
 parser.add_argument('--uncorrected', action='store_true')
+parser.add_argument('--scanpy_pca', action='store_true')
 args = parser.parse_args()
 
-path, output, namespace, write, tsne, uncorrected, dimred, metadata = args.path, args.output, args.namespace, \
-                                                                      args.write, args.tsne, args.uncorrected, \
-                                                                      args.dimred, args.metadata
+path, output, namespace, write, tsne, uncorrected, dimred, metadata, scanpy = \
+    args.path, args.output, args.namespace, args.write, args.tsne, args.uncorrected, args.dimred, args.metadata, \
+    args.scanpy_pca
 
 if not os.path.isdir(output):
     os.mkdir(output)

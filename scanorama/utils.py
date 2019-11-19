@@ -28,6 +28,15 @@ def reduce_dimensionality(X, dim_red_k=100):
     U, s, Vt = pca(X, k=k) # Automatically centers.
     return U[:, range(k)] * s[range(k)]
 
+
+def scanpy_pca(X, n_pcs=100):
+    import anndata
+    import scanpy as sc
+    adata = anndata.AnnData(X)
+    sc.tl.pca(adata, n_comps=n_pcs, random_state=2)
+    return adata.obsm['X_pca']
+
+
 def visualize_cluster(coords, cluster, cluster_labels,
                       cluster_name=None, size=1, viz_prefix='vc',
                       image_suffix='.svg'):

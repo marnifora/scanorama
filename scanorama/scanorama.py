@@ -14,7 +14,7 @@ import sys
 import warnings
 
 from .t_sne_approx import TSNEApprox
-from .utils import plt, dispersion, reduce_dimensionality
+from .utils import plt, dispersion, reduce_dimensionality, scanpy_pca
 from .utils import visualize_cluster, visualize_expr, visualize_dropout
 from .utils import handle_zeros_in_scale
 
@@ -351,9 +351,14 @@ def check_datasets(datasets_full):
     return datasets_new
 
 # Randomized SVD.
-def dimensionality_reduce(datasets, dimred=DIMRED):
+def dimensionality_reduce(datasets, dimred=DIMRED, scanpy=False):
     X = vstack(datasets)
-    X = reduce_dimensionality(X, dim_red_k=dimred)
+    if scanpy:
+        print('Scanpy PCA')
+        X = scanpy_pca(X, n_pcs=dimred)
+    else:
+        print('PCA from fbpca')
+        X = reduce_dimensionality(X, dim_red_k=dimred)
     datasets_dimred = []
     base = 0
     for ds in datasets:
