@@ -2,7 +2,8 @@ from bin.process import load_names
 from scanorama.scanorama import *
 from scipy.io import mmwrite
 from time import time
-from bin.config import data_names, names, namespace, output, write, tsne, dimred, metadata, scanpy
+from sklearn.preprocessing import normalize
+from bin.config import data_names, names, namespace, output, write, tsne, dimred, metadata, scanpy, adjust
 
 t0 = time()
 
@@ -15,14 +16,34 @@ datasets, genes = merge_datasets(datasets, genes_list, ds_names=names)
 if len(datasets) == 1:
     print('WARNING: only one dataset given - Scanorama will not do anything!')
 
-if write and counts:
+if write or tsne:
     t1 = time()
-    mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
+    cells = []
+    for c, name in zip(cells_list, names):
+        for cell in c:
+            cells.append('%s:%s' % (cell, name))
     timew = time() - t1
-    print('Matrix of counts has been written in {:.3f} min'.format(timew/60))
-elif write and not counts:
-    timew = 0.0
-    print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
+    print("Cells' names has been established in {} s".format(timew))
+
+if write:
+    t1 = time()
+    with open(output + '{}_genes.txt'.format(namespace), 'w') as o:
+        o.write('\n'.join(genes))
+    with open(output + '{}_cells.txt'.format(namespace), 'w') as o:
+        o.write('\n'.join(cells))
+    if metadata is None:
+        with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
+            o.write('Cell ID\tDataset\n')
+            for cell, name in [el.split(':') for el in cells]:
+                o.write('{}\t{}\n'.format(cell, name))
+    print('Cells, genes and metadata have been written into files!')
+    if counts:
+        mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
+        timew = time() - t1
+        print('Matrix of counts has been written in {:.3f} min'.format(timew/60))
+    elif write and not counts:
+        timew = 0.0
+        print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 print('Normalization and dimension reduction')
 datasets_norm = []
@@ -40,45 +61,28 @@ if write:
     if scanpy:
         mmwrite('{}{}_matrix_dimred-scanpy.mtx'.format(output, namespace), vstack(datasets_dimred))
     else:
-        mmwrite('{}{}_matrix_dimred-fbpca.mtx'.format(output, namespace), vstack(datasets_dimred))
+        mmwrite('{}{}_matrix_dimred.mtx'.format(output, namespace), vstack(datasets_dimred))
     timew += time() - t1
     print('Norm and dimred matrices have been written in {:.3f} min'.format(timew/60))
 
-print('Scanorama adjusting process')
-datasets_adjusted = assemble(datasets_dimred, ds_names=names)
+if adjust:
+    print('Scanorama adjusting process')
+    datasets_adjusted = assemble(datasets_dimred, ds_names=names)
 
-if write or tsne:
-    t1 = time()
-    cells = []
-    for c, name in zip(cells_list, names):
-        for cell in c:
-            cells.append('%s:%s' % (cell, name))
-    timew += time() - t1
-    print("Cells' names has been established in {} s".format(timew))
+    if write:
+        t1 = time()
+        if scanpy:
+            mmwrite('{}{}_matrix_adjusted-scanpy.mtx'.format(output, namespace), vstack(datasets_adjusted))
+        else:
+            mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
+        timew += time() - t1
+        print('Adjusted matrix has been written in {} min'.format(timew/60))
 
-if write:
-    t1 = time()
-    if scanpy:
-        mmwrite('{}{}_matrix_adjusted-scanpy.mtx'.format(output, namespace), vstack(datasets_adjusted))
+    if write:
+        print('Integrated and batch corrected panoramas in {:.3f} minutes (including {:.3f}'.format((time()-t0)/60, timew/60)
+              + ' min for writing matrices into files)')
     else:
-        mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
-    with open(output + '{}_genes.txt'.format(namespace), 'w') as o:
-        o.write('\n'.join(genes))
-    with open(output + '{}_cells.txt'.format(namespace), 'w') as o:
-        o.write('\n'.join(cells))
-    if metadata is None:
-        with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
-            o.write('Cell ID\tDataset\n')
-            for cell, name in [el.split(':') for el in cells]:
-                o.write('{}\t{}\n'.format(cell, name))
-    timew += time() - t1
-    print('Adjusted matrix, genes, cells and metadata files have been written in {} min'.format(timew/60))
-
-if write:
-    print('Integrated and batch corrected panoramas in {:.3f} minutes (including {:.3f}'.format((time()-t0)/60, timew/60)
-          + ' min for writing matrices into files)')
-else:
-    print('Integrated and batch corrected panoramas in {:.3f} minutes'.format((time() - t0)/60))
+        print('Integrated and batch corrected panoramas in {:.3f} minutes'.format((time() - t0)/60))
 
 if tsne:
     print('Caculating t-SNE')
