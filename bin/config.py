@@ -13,7 +13,7 @@ parser.add_argument('-p', '--path', action='store', metavar='PATH', type=str, re
 parser.add_argument('--batches', action='store', metavar='FILE', type=str, default=None,
                     help='File with batches - if mtx file containing merged datasets is provided')
 parser.add_argument('-o', '--output', action='store', metavar='OUT', type=str, required=False,
-                    default='./results/', help='Directory for the results')
+                    default=None, help='Directory for the results, if not given - it is [PATH]/results/')
 parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', type=str, required=False,
                     default='panorama', help='Namespace for the result files')
 parser.add_argument('-m', '--metadata', action='store', metavar='METADATA', type=str, required=False,
@@ -27,14 +27,19 @@ parser.add_argument('--scanpy_pca', action='store_true')
 parser.add_argument('--no_adjust', action='store_true')
 args = parser.parse_args()
 
-path, output, namespace, write, tsne, uncorrected, dimred, metadata, scanpy = \
-    args.path, args.output, args.namespace, args.write, args.tsne, args.uncorrected, args.dimred, args.metadata, \
+path, namespace, write, tsne, uncorrected, dimred, metadata, scanpy = \
+    args.path, args.namespace, args.write, args.tsne, args.uncorrected, args.dimred, args.metadata, \
     args.scanpy_pca
 
 if args.no_adjust:
     adjust = False
 else:
     adjust = True
+
+if args.output is None:
+    output = os.path.join(path, '/results')
+else:
+    output = args.output
 
 if not os.path.isdir(output):
     os.mkdir(output)
@@ -55,7 +60,7 @@ if args.mtx is not None:
         datasets.append(m)
 else:
     names, data_names = [], []
-    with open(args.file, 'r') as file:
+    with open(args.conf, 'r') as file:
         for line in file:
             l = line.rstrip().split('\t')
             if len(l) == 2:
