@@ -37,19 +37,23 @@ if write:
             for cell, name in [el.split(':') for el in cells]:
                 o.write('{}\t{}\n'.format(cell, name))
     print('Cells, genes and metadata have been written into files!')
-    if counts:
+    if all(counts):
         mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
         timew = time() - t1
         print('Matrix of counts has been written in {:.3f} min'.format(timew/60))
-    elif write and not counts:
+    elif write and not all(counts):
         timew = 0.0
         print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 print('Normalization and dimension reduction')
 datasets_norm = []
-print('Normalizing...')
-for ds in datasets:
-    datasets_norm.append(np.log1p(normalize(ds.copy(), axis=1)))
+for ds, c, n in zip(datasets, counts, names):
+    if c:
+        print('Normalizing {}'.format(n))
+        datasets_norm.append(np.log1p(normalize(ds.copy(), axis=1)))
+    else:
+        print('{} already normalized'.format(n))
+        datasets_norm.append(ds)
 if dimred > 0:
     print('Reducing dimension...')
     datasets_dimred = dimensionality_reduce([ds.copy() for ds in datasets_norm], dimred=dimred, scanpy=scanpy)

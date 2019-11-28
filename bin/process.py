@@ -290,11 +290,10 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
     genes_list = []
     cells_list = []
     n_cells = 0
-    counts = True
+    counts = []
     for dname in data_names:
         X_i, cells_i, genes_i, c = load_data(dname)
-        if not c:
-            counts = False
+        counts.append(c)
         if norm:
             X_i = normalize(X_i, axis=1)
             print('Normalization {} during loading'.format(dname))
@@ -302,7 +301,7 @@ def load_names(data_names, norm=False, log1p=False, verbose=True):
             X_i = np.log1p(X_i)
             print('Log1p of {} during loading'.format(dname))
         X_i = csr_matrix(X_i)
-            
+
         datasets.append(X_i)
         genes_list.append(genes_i)
         cells_list.append(cells_i)
