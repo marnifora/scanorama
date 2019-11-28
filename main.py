@@ -34,8 +34,8 @@ if write:
     if metadata is None:
         with open(output + '{}_metadata.tsv'.format(namespace), 'w') as o:
             o.write('Cell ID\tDataset\n')
-            for cell, name in [el.split(':') for el in cells]:
-                o.write('{}\t{}\n'.format(cell, name))
+            for cell in cells:
+                o.write('{}\t{}\n'.format(cell, cell.split(':')[-1]))
     print('Cells, genes and metadata have been written into files!')
     if all(counts):
         mmwrite('{}{}_matrix_counts.mtx'.format(output, namespace), vstack(datasets))
