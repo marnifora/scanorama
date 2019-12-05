@@ -36,9 +36,9 @@ path, write, tsne, uncorrected, pc, metadata, scanpy = \
 
 if args.namespace is None:
     if args.mtx is not None:
-        string = args.mtx.strip('.mtx')
+        string = args.mtx.replace('.mtx', '')
     elif args.conf is not None:
-        string = args.conf.strip('.txt')
+        string = args.conf.replace('.txt', '')
     namespace = string.split('/')[-1].split('_')[0]
 else:
     namespace = args.namespace
@@ -86,7 +86,7 @@ if args.mtx is not None:
 
     genes = open(os.path.join(path, '{}_genes.txt'.format(namespace)), 'r').read().strip().split('\n')
     cells = open(os.path.join(path, '{}_cells.txt'.format(namespace)), 'r').read().strip().split('\n')
-    matrix = mmread(os.path.join(path, args.mtx))
+    matrix = mmread(os.path.join(path, args.mtx)).tocsr()
     genes_list = []
     cells_list = []
     for b in batches.values():
