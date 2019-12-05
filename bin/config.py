@@ -18,17 +18,20 @@ parser.add_argument('-n', '--namespace', action='store', metavar='NAMESPACE', ty
                     default=None, help='Namespace for the result files, if not given - the same as input file')
 parser.add_argument('-m', '--metadata', action='store', metavar='METADATA', type=str, required=False,
                     default=None, help='Optional file with metadata')
-parser.add_argument('-pc', '--dimred', action='store', metavar='NUMBER', type=int, required=False,
+parser.add_argument('-pc', action='store', metavar='NUMBER', type=int, required=False,
                     default=100, help='Number of dimensions after reduction, default = 100')
 parser.add_argument('-w', '--write', action='store_true')
 parser.add_argument('--tsne', action='store_true')
 parser.add_argument('--uncorrected', action='store_true')
 parser.add_argument('--scanpy_pca', action='store_true')
+parser.add_argument('--no_norm', action='store_true')
+parser.add_argument('--no_dimred', action='store_true')
 parser.add_argument('--no_adjust', action='store_true')
+
 args = parser.parse_args()
 
-path, write, tsne, uncorrected, dimred, metadata, scanpy = \
-    args.path, args.write, args.tsne, args.uncorrected, args.dimred, args.metadata, \
+path, write, tsne, uncorrected, pc, metadata, scanpy = \
+    args.path, args.write, args.tsne, args.uncorrected, args.pc, args.metadata, \
     args.scanpy_pca
 
 if args.namespace is None:
@@ -45,6 +48,16 @@ if args.no_adjust:
 else:
     adjust = True
 
+if args.no_dimred:
+    dimred = False
+else:
+    dimred = True
+
+if args.no_norm:
+    norm = False
+else:
+    norm = True
+
 if args.output is None:
     output = os.path.join(path, '/results')
 else:
@@ -53,22 +66,38 @@ else:
 if not os.path.isdir(output):
     os.mkdir(output)
 
+if args.metadata is not None:
+    metafile = args.metadata
+else:
+    metafile = '{}_metadata.tsv'.format(namespace)
+
 datasets = []
+names, data_names = [], []
 if args.mtx is not None:
     from scipy.io import mmread
     import numpy as np
 
-    clusters = {}
-    with open(os.path.join(path, args.clusters), 'r') as f:
+    batches = {}
+    with open(os.path.join(path, metafile), 'r') as f:
+        col = f.readline().strip().split('\t').index('Dataset')
         for i, line in enumerate(f):
-            clusters[line.strip()] = clusters.setdefault(line.strip(), []) + [i]
+            line = line.strip().split('\t')
+            batches[line[col]] = batches.setdefault(line[col], []) + [i]
 
+    genes = open(os.path.join(path, '{}_genes.txt'.format(namespace)), 'r').read().strip().split('\n')
+    cells = open(os.path.join(path, '{}_cells.txt'.format(namespace)), 'r').read().strip().split('\n')
     matrix = mmread(os.path.join(path, args.mtx))
-    for cl in clusters.values():
-        m = matrix[np.array(cl), :]
+    genes_list = []
+    cells_list = []
+    for b in batches.values():
+        b = np.array(b)
+        m = matrix[b, :]
         datasets.append(m)
+        genes_list.append(np.array(genes[b]))
+        cells_list.append(np.array(cells[b]))
+    print('{} datasets based on {} have been loaded'.format(len(batches), args.mtx))
+
 else:
-    names, data_names = [], []
     with open(args.conf, 'r') as file:
         for line in file:
             l = line.rstrip().split('\t')
@@ -99,12 +128,9 @@ else:
                     sys.exit()
         print('Data names loaded')
 
-if args.metadata is not None:
-    metafile = args.metadata
-else:
-    metafile = '{}_metadata.tsv'.format(namespace)
 if os.path.isfile(metafile):
     with open(metafile, 'r') as f:
+        f.readline()
         metadata = {}
         for line in f:
             line = line.strip().split('\t')
