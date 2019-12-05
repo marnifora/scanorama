@@ -8,9 +8,7 @@ from bin.config import data_names, names, namespace, output, write, tsne, pc, me
 
 t0 = time()
 
-if datasets:
-    from bin.config import genes_list, cells_list
-elif data_names:
+if not datasets and data_names:
     print('Loading matrices from files')
     datasets, genes_list, cells_list, n_cells, counts = load_names(data_names)
 
@@ -79,7 +77,7 @@ if (norm or dimred) and write:
 if adjust:
     print('Scanorama adjusting process')
     if 'datasets_dimred' not in globals():
-        datasets_dimred = datasets
+        datasets_dimred = [el.toarray() for el in datasets]
     datasets_adjusted = assemble(datasets_dimred, ds_names=names)
 
     if write:

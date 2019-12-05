@@ -1,5 +1,3 @@
-293t_jurkat/293t
-293t_jurkat/jurkat
-293t_jurkat/jurkat_293t_50_50
-293t_jurkat/jurkat_293t_99_1
-hsc/hsc_mars
+293t
+jurkat
+jurkat_293t_50_50

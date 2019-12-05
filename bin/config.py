@@ -59,7 +59,7 @@ else:
     norm = True
 
 if args.output is None:
-    output = os.path.join(path, '/results')
+    output = os.path.join(path, 'results')
 else:
     output = args.output
 
@@ -84,17 +84,10 @@ if args.mtx is not None:
             line = line.strip().split('\t')
             batches[line[col]] = batches.setdefault(line[col], []) + [i]
 
-    genes = open(os.path.join(path, '{}_genes.txt'.format(namespace)), 'r').read().strip().split('\n')
-    cells = open(os.path.join(path, '{}_cells.txt'.format(namespace)), 'r').read().strip().split('\n')
     matrix = mmread(os.path.join(path, args.mtx)).tocsr()
-    genes_list = []
-    cells_list = []
     for b in batches.values():
-        b = np.array(b)
-        m = matrix[b, :]
+        m = matrix[np.array(b), :]
         datasets.append(m)
-        genes_list.append(np.array(genes[b]))
-        cells_list.append(np.array(cells[b]))
     print('{} datasets based on {} have been loaded'.format(len(batches), args.mtx))
 
 else:
