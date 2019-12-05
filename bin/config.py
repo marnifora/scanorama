@@ -85,9 +85,10 @@ if args.mtx is not None:
             batches[line[col]] = batches.setdefault(line[col], []) + [i]
 
     matrix = mmread(os.path.join(path, args.mtx)).tocsr()
-    for b in batches.values():
+    for k, b in batches.items():
         m = matrix[np.array(b), :]
         datasets.append(m)
+        names.append(k)
     print('{} datasets based on {} have been loaded'.format(len(batches), args.mtx))
 
 else:
