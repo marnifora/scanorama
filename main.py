@@ -41,7 +41,6 @@ if not datasets and data_names:
             timew = time() - t1
             print('Matrix of counts has been written in {:.3f} min'.format(timew/60))
         elif write and not all(counts):
-            timew = 0.0
             print('Matrix of counts has not been written as not all given matrices are matrix of counts!')
 
 if len(datasets) == 1:
@@ -71,7 +70,7 @@ if (norm or dimred) and write:
         mmwrite('{}{}_matrix_dimred-scanpy.mtx'.format(output, namespace), vstack(datasets_dimred))
     else:
         mmwrite('{}{}_matrix_dimred.mtx'.format(output, namespace), vstack(datasets_dimred))
-    timew += time() - t1
+    timew = time() - t1
     print('Norm and dimred matrices have been written in {:.3f} min'.format(timew/60))
 
 if adjust:
@@ -86,12 +85,11 @@ if adjust:
             mmwrite('{}{}_matrix_adjusted-scanpy.mtx'.format(output, namespace), vstack(datasets_adjusted))
         else:
             mmwrite('{}{}_matrix_adjusted.mtx'.format(output, namespace), vstack(datasets_adjusted))
-        timew += time() - t1
+        timew = time() - t1
         print('Adjusted matrix has been written in {} min'.format(timew/60))
 
     if write:
-        print('Integrated and batch corrected panoramas in {:.3f} minutes (including {:.3f}'.format((time()-t0)/60, timew/60)
-              + ' min for writing matrices into files)')
+        print('Integrated and batch corrected panoramas in {:.3f} minutes'.format((time()-t0)/60))
     else:
         print('Integrated and batch corrected panoramas in {:.3f} minutes'.format((time() - t0)/60))
 
