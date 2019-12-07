@@ -20,6 +20,8 @@ parser.add_argument('-m', '--metadata', action='store', metavar='METADATA', type
                     default=None, help='Optional file with metadata')
 parser.add_argument('-pc', action='store', metavar='NUMBER', type=int, required=False,
                     default=100, help='Number of dimensions after reduction, default = 100')
+parser.add_argument('--batch_size', action='store', metavar='NUMBER', type=int, required=False,
+                    default=None, help='Batch size parameter for Scanorama computations')
 parser.add_argument('-w', '--write', action='store_true')
 parser.add_argument('--tsne', action='store_true')
 parser.add_argument('--uncorrected', action='store_true')
@@ -30,9 +32,9 @@ parser.add_argument('--no_adjust', action='store_true')
 
 args = parser.parse_args()
 
-path, write, tsne, uncorrected, pc, metadata, scanpy = \
+path, write, tsne, uncorrected, pc, metadata, scanpy, batch_size = \
     args.path, args.write, args.tsne, args.uncorrected, args.pc, args.metadata, \
-    args.scanpy_pca
+    args.scanpy_pca, args.batch_size
 
 if args.namespace is None:
     if args.mtx is not None:

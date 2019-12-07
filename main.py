@@ -4,7 +4,8 @@ from scipy.io import mmwrite
 from time import time
 from sklearn.preprocessing import normalize
 import os
-from bin.config import data_names, names, namespace, output, write, tsne, pc, metadata, scanpy, adjust, norm, dimred, datasets, path
+from bin.config import data_names, names, namespace, output, write, tsne, pc, metadata, scanpy, adjust, norm, dimred, \
+    datasets, path, batch_size
 
 t0 = time()
 
@@ -46,8 +47,9 @@ if not datasets and data_names:
 if len(datasets) == 1:
     print('WARNING: only one dataset given - Scanorama will not do anything!')
 
-print('Normalization and dimension reduction')
+
 if norm:
+    print('Normalization...')
     datasets_norm = []
     for ds, c, n in zip(datasets, counts, names):
         if c:
@@ -77,7 +79,7 @@ if adjust:
     print('Scanorama adjusting process')
     if 'datasets_dimred' not in globals():
         datasets_dimred = [el.toarray() for el in datasets]
-    datasets_adjusted = assemble(datasets_dimred, ds_names=names)
+    datasets_adjusted = assemble(datasets_dimred, ds_names=names, batch_size=batch_size)
 
     if write:
         t1 = time()
